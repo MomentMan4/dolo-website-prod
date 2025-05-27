@@ -29,8 +29,8 @@ export function ContactHero() {
       </div>
 
       {/* Background Elements */}
-      <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-teal/10"></div>
-      <div className="absolute -right-20 top-20 h-72 w-72 rounded-full bg-coral/10"></div>
+      <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-[#007196]/10"></div>
+      <div className="absolute -right-20 top-20 h-72 w-72 rounded-full bg-[#FF5073]/10"></div>
     </section>
   )
 }

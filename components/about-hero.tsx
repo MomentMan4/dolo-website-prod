@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 
 export function AboutHero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-white via-orange/5 to-teal/5 py-16 md:py-20 lg:py-28">
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#003B6F]/5 via-[#007196]/5 to-[#FF5073]/5 py-16 md:py-20 lg:py-28">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1
@@ -13,9 +13,10 @@ export function AboutHero() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <span className="mr-2 text-3xl sm:text-4xl md:text-5xl lg:text-6xl">❤️</span> The Heart Behind Dolo
+            <span className="mr-2 text-3xl text-[#FF6B35] sm:text-4xl md:text-5xl lg:text-6xl">❤️</span> The Heart Behind
+            Dolo
             <br className="hidden sm:block" />
-            <span className="italic text-pink">We're Not Basic. We don't Just Build Websites.</span>
+            <span className="block text-[#007196] mt-2">We're Not Basic. We don't Just Build Websites.</span>
           </motion.h1>
 
           <motion.p
@@ -32,13 +33,13 @@ export function AboutHero() {
       </div>
 
       {/* Background Elements */}
-      <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-orange/10"></div>
-      <div className="absolute -right-20 top-20 h-72 w-72 rounded-full bg-teal/10"></div>
-      <div className="absolute bottom-40 right-40 h-48 w-48 rounded-full bg-pink/10"></div>
-      <div className="absolute left-40 top-40 h-56 w-56 rounded-full bg-navy/10"></div>
+      <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-[#FF6B35]/10"></div>
+      <div className="absolute -right-20 top-20 h-72 w-72 rounded-full bg-[#007196]/10"></div>
+      <div className="absolute bottom-40 right-40 h-48 w-48 rounded-full bg-[#FF5073]/10"></div>
+      <div className="absolute left-40 top-40 h-56 w-56 rounded-full bg-[#003B6F]/10"></div>
 
       {/* Additional gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange/5 via-teal/5 to-pink/5 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-[#003B6F]/5 via-[#FF6B35]/5 to-[#FF5073]/5 pointer-events-none"></div>
     </section>
   )
 }
