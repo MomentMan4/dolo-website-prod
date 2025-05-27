@@ -1,0 +1,13 @@
+# Ignore artifacts
+.next
+build
+coverage
+node_modules
+public
+.vercel
+.github
+.husky
+
+# Ignore files
+*.min.js
+*.d.ts
