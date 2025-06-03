@@ -30,11 +30,6 @@ const privateBuildFAQs = [
     answer:
       "Yes. We support integrations with tools like HubSpot, Salesforce, Mailchimp, Notion, Stripe, and more. If you have a custom stack, we'll assess it during our discovery phase to ensure compatibility.",
   },
-  {
-    question: "What support is included after launch?",
-    answer:
-      "You'll receive 30 days of post-launch support for tweaks, training, and QA. Ongoing retainer support is available for Private Build clients who need us to manage or enhance their product over time.",
-  },
 ]
 
 export default function PrivateBuild() {
