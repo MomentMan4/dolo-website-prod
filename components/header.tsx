@@ -64,7 +64,7 @@ export function Header() {
             </li>
           </ul>
           <Link href="/start">
-            <Button className="bg-orange text-white hover:bg-orange-600">Start my Website</Button>
+            <Button className="bg-orange text-white hover:bg-orange-600">Start My Website</Button>
           </Link>
         </nav>
 
@@ -135,7 +135,7 @@ export function Header() {
                 </li>
                 <li className="pt-2">
                   <Link href="/start" onClick={() => setIsMenuOpen(false)}>
-                    <Button className="w-full bg-orange text-white hover:bg-orange-600">Start my Website</Button>
+                    <Button className="w-full bg-orange text-white hover:bg-orange-600">Start My Website</Button>
                   </Link>
                 </li>
               </ul>

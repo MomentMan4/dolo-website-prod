@@ -6,7 +6,6 @@ import { PricingSnapshot } from "@/components/pricing-snapshot"
 import { Testimonials } from "@/components/testimonials"
 import { CtaBanner } from "@/components/cta-banner"
 import { Footer } from "@/components/footer"
-// Removed FAQsSection import
 
 export default function Home() {
   return (
@@ -17,7 +16,6 @@ export default function Home() {
       <HowItWorks />
       <PricingSnapshot />
       <Testimonials />
-      {/* Removed FAQsSection component */}
       <CtaBanner />
       <Footer />
     </main>

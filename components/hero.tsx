@@ -105,3 +105,6 @@ export function Hero() {
     </section>
   )
 }
+
+// Add default export
+export default Hero

@@ -39,9 +39,59 @@ export function PricingSnapshot() {
       transition: {
         duration: 1.5,
         repeat: Number.POSITIVE_INFINITY,
-        repeatType: "mirror",
+        repeatType: "mirror" as const,
       },
     },
+  }
+
+  // Define pricing data with proper structure and error handling
+  const pricingPlans = [
+    {
+      id: "essential",
+      name: "Essential",
+      price: "$499.99",
+      delivery: "10–14 days delivery",
+      features: ["Up to 3 pages", "Mobile Design", "Basic SEO Setup"],
+      buttonText: "Start My Website",
+      buttonLink: "/pricing",
+      isPopular: false,
+      buttonStyle: "bg-navy text-white hover:bg-navy-600",
+    },
+    {
+      id: "pro",
+      name: "Pro",
+      price: "$849.99",
+      delivery: "14–21 days delivery",
+      features: ["Up to 6 pages", "Booking + Lead Capture", "Blog or Portfolio Section"],
+      buttonText: "Start My Website",
+      buttonLink: "/pricing#pro-plan",
+      isPopular: true,
+      buttonStyle: "bg-orange text-white hover:bg-orange-600",
+    },
+    {
+      id: "premier",
+      name: "Premier",
+      price: "$1199.99",
+      delivery: "21–30 days delivery",
+      features: ["Up to 10 pages", "Enhanced SEO + Animations", "Custom Integrations"],
+      buttonText: "Start My Website",
+      buttonLink: "/pricing",
+      isPopular: false,
+      buttonStyle: "bg-navy text-white hover:bg-navy-600",
+    },
+  ]
+
+  // Error handling: ensure pricingPlans is defined and is an array
+  if (!pricingPlans || !Array.isArray(pricingPlans)) {
+    return (
+      <section id="pricing" className="bg-gray-50 py-16 md:py-20 lg:py-28">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center">
+            <p>Loading pricing information...</p>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   return (
@@ -66,112 +116,70 @@ export function PricingSnapshot() {
           whileInView="show"
           viewport={{ once: true }}
         >
-          {/* Essential Plan */}
-          <motion.div
-            className="rounded-xl bg-white p-6 shadow-lg transition-all hover:shadow-xl md:p-8"
-            variants={item}
-            whileHover={{ y: -10 }}
-          >
-            <h3 className="mb-2 text-xl font-bold text-navy">Essential</h3>
-            <div className="mb-6">
-              <span className="text-3xl font-bold text-navy">$499.99</span>
-            </div>
-            <p className="mb-6 text-sm text-gray-600">10–14 days delivery</p>
-            <ul className="mb-8 space-y-3">
-              <li className="flex items-center">
-                <Check className="mr-2 h-5 w-5 text-orange" />
-                <span>Up to 3 pages</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-5 w-5 text-orange" />
-                <span>Mobile Design</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-5 w-5 text-orange" />
-                <span>Basic SEO Setup</span>
-              </li>
-            </ul>
-            <Button className="w-full bg-navy text-white hover:bg-navy-600" asChild>
-              <Link href="/pricing">See Full Features</Link>
-            </Button>
-          </motion.div>
+          {pricingPlans.map((plan) => {
+            // Additional safety check for each plan's features array
+            const safeFeatures = plan.features && Array.isArray(plan.features) ? plan.features : []
 
-          {/* Pro Plan */}
-          <motion.div
-            className="relative rounded-xl bg-white p-6 shadow-lg transition-all hover:shadow-xl md:p-8"
-            variants={item}
-            whileHover={{
-              y: -10,
-              boxShadow: "0 0 25px rgba(255, 107, 53, 0.5)",
-            }}
-          >
-            {/* Shimmer effect on hover */}
-            <motion.div
-              className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-orange/20 to-transparent pointer-events-none"
-              style={{ backgroundSize: "200% 100%" }}
-              variants={shimmer}
-              initial="hidden"
-              whileHover="hover"
-            />
+            return (
+              <motion.div
+                key={plan.id}
+                className={`relative rounded-xl bg-white p-6 shadow-lg transition-all hover:shadow-xl md:p-8 ${
+                  plan.isPopular ? "ring-2 ring-orange ring-opacity-50" : ""
+                }`}
+                variants={item}
+                whileHover={
+                  plan.isPopular
+                    ? {
+                        y: -10,
+                        boxShadow: "0 0 25px rgba(255, 107, 53, 0.5)",
+                      }
+                    : { y: -10 }
+                }
+              >
+                {/* Shimmer effect for Pro plan */}
+                {plan.isPopular && (
+                  <motion.div
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-orange/20 to-transparent pointer-events-none"
+                    style={{ backgroundSize: "200% 100%" }}
+                    variants={shimmer}
+                    initial="hidden"
+                    whileHover="hover"
+                  />
+                )}
 
-            <div className="absolute -top-4 left-0 right-0 mx-auto w-fit rounded-full bg-orange px-4 py-1 text-xs font-bold text-white">
-              MOST POPULAR
-            </div>
-            <h3 className="mb-2 text-xl font-bold text-navy">Pro</h3>
-            <div className="mb-6">
-              <span className="text-3xl font-bold text-navy">$849.99</span>
-            </div>
-            <p className="mb-6 text-sm text-gray-600">14–21 days delivery</p>
-            <ul className="mb-8 space-y-3">
-              <li className="flex items-center">
-                <Check className="mr-2 h-5 w-5 text-orange" />
-                <span>Up to 6 pages</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-5 w-5 text-orange" />
-                <span>Booking + Lead Capture</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-5 w-5 text-orange" />
-                <span>Blog or Portfolio Section</span>
-              </li>
-            </ul>
-            <Button className="w-full bg-orange text-white hover:bg-orange-600" asChild>
-              <Link href="/pricing#pro-plan">See Full Features</Link>
-            </Button>
-          </motion.div>
+                {/* Popular badge */}
+                {plan.isPopular && (
+                  <div className="absolute -top-4 left-0 right-0 mx-auto w-fit rounded-full bg-orange px-4 py-1 text-xs font-bold text-white">
+                    MOST POPULAR
+                  </div>
+                )}
 
-          {/* Premier Plan */}
-          <motion.div
-            className="rounded-xl bg-white p-6 shadow-lg transition-all hover:shadow-xl md:p-8"
-            variants={item}
-            whileHover={{ y: -10 }}
-          >
-            <h3 className="mb-2 text-xl font-bold text-navy">Premier</h3>
-            <div className="mb-6">
-              <span className="text-3xl font-bold text-navy">$1199.99</span>
-            </div>
-            <p className="mb-6 text-sm text-gray-600">21–30 days delivery</p>
-            <ul className="mb-8 space-y-3">
-              <li className="flex items-center">
-                <Check className="mr-2 h-5 w-5 text-orange" />
-                <span>Up to 10 pages</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-5 w-5 text-orange" />
-                <span>Enhanced SEO + Animations</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="mr-2 h-5 w-5 text-orange" />
-                <span>Custom Integrations</span>
-              </li>
-            </ul>
-            <Button className="w-full bg-navy text-white hover:bg-navy-600" asChild>
-              <Link href="/pricing">See Full Features</Link>
-            </Button>
-          </motion.div>
+                <h3 className="mb-2 text-xl font-bold text-navy">{plan.name}</h3>
+                <div className="mb-6">
+                  <span className="text-3xl font-bold text-navy">{plan.price}</span>
+                </div>
+                <p className="mb-6 text-sm text-gray-600">{plan.delivery}</p>
+
+                <ul className="mb-8 space-y-3">
+                  {safeFeatures.map((feature, index) => (
+                    <li key={index} className="flex items-center">
+                      <Check className="mr-2 h-5 w-5 text-orange" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Button className={`w-full ${plan.buttonStyle}`} asChild>
+                  <Link href={plan.buttonLink}>{plan.buttonText}</Link>
+                </Button>
+              </motion.div>
+            )
+          })}
         </motion.div>
       </div>
     </section>
   )
 }
+
+// Export both named and default for compatibility
+export default PricingSnapshot

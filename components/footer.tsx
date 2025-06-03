@@ -60,7 +60,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/start" className="text-gray-600 transition-colors hover:text-orange">
-                  Start my Website
+                  Start My Website
                 </Link>
               </li>
             </ul>

@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { Heart } from "lucide-react"
 
 export function AboutHero() {
   return (
@@ -13,10 +14,18 @@ export function AboutHero() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <span className="mr-2 text-3xl text-[#FF6B35] sm:text-4xl md:text-5xl lg:text-6xl">❤️</span> The Heart Behind
-            Dolo
+            <Heart
+              className="inline-block mr-2 text-[#FF6B35] w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+            />
+            The Heart Behind Dolo
             <br className="hidden sm:block" />
-            <span className="block text-[#007196] mt-2">We're Not Basic. We don't Just Build Websites.</span>
+            <span className="block italic text-[#007196] mt-2 sm:mt-0">
+              <span className="block sm:inline">We're Not Basic.</span>{" "}
+              <span className="block sm:inline">We don't Just Build Websites.</span>
+            </span>
           </motion.h1>
 
           <motion.p
@@ -43,3 +52,6 @@ export function AboutHero() {
     </section>
   )
 }
+
+// Add default export for flexibility
+export default AboutHero

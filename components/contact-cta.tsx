@@ -13,9 +13,6 @@ export function ContactCTA() {
           <h2 className="mb-6 text-3xl font-bold text-navy md:text-4xl lg:text-5xl xl:text-6xl">
             Ready to Take Action?
           </h2>
-          <p className="mx-auto mb-8 max-w-2xl text-base text-gray-600 sm:text-lg md:text-xl">
-            We're excited to hear about your project. Fill out the form below and we'll get back to you within 24 hours.
-          </p>
 
           <motion.div
             className="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-x-4 sm:space-y-0"
@@ -34,7 +31,7 @@ export function ContactCTA() {
 
             <Link href="/start" className="w-full sm:w-auto">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button className="w-full bg-orange text-white hover:bg-orange-600 sm:w-auto">Start my Website</Button>
+                <Button className="w-full bg-orange text-white hover:bg-orange-600 sm:w-auto">Start My Website</Button>
               </motion.div>
             </Link>
 
