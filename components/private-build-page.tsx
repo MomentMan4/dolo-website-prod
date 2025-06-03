@@ -26,7 +26,7 @@ export function PrivateBuildPage() {
   return (
     <>
       {/* Hero Section with Premium Development Service */}
-      <section className="relative overflow-hidden py-20 md:py-28 lg:py-32">
+      <section className="relative overflow-hidden py-16 md:py-20 lg:py-24">
         {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-navy via-teal-800 to-navy-900"></div>
 
@@ -137,7 +137,7 @@ export function PrivateBuildPage() {
       </section>
 
       {/* Enterprise-Grade Features Section with Rizz */}
-      <section className="py-20 md:py-28 lg:py-32 relative overflow-hidden">
+      <section className="py-16 md:py-20 lg:py-24 relative overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-b from-white to-gray-50"></div>
         <div className="absolute -right-40 top-20 h-80 w-80 rounded-full bg-orange/5 blur-3xl"></div>
@@ -206,7 +206,7 @@ export function PrivateBuildPage() {
       </section>
 
       {/* Roadmap Section - Pixel Perfect Recreation */}
-      <section className="bg-gray-50 py-20 md:py-28 lg:py-32 relative overflow-hidden">
+      <section className="bg-gray-50 py-16 md:py-20 lg:py-24 relative overflow-hidden">
         {/* Background Elements */}
         <div className="absolute -left-40 top-40 h-80 w-80 rounded-full bg-navy/5 blur-3xl"></div>
         <div className="absolute -right-40 bottom-40 h-80 w-80 rounded-full bg-orange/5 blur-3xl"></div>
@@ -287,7 +287,7 @@ export function PrivateBuildPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative overflow-hidden py-16 md:py-20">
+      <section className="relative overflow-hidden py-16 md:py-20 lg:py-24">
         {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy-700 to-teal-900"></div>
 
