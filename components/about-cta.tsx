@@ -16,7 +16,7 @@ export function AboutCta() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            Ready to get started?
+            Ready To Get Started?
           </motion.h2>
 
           <motion.div
@@ -28,7 +28,7 @@ export function AboutCta() {
           >
             <Link href="/start" className="w-full sm:w-auto">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="animate-glow">
-                <Button className="w-full bg-orange text-white hover:bg-orange-600 sm:w-auto">Start my Website</Button>
+                <Button className="w-full bg-orange text-white hover:bg-orange-600 sm:w-auto">Start My Website</Button>
               </motion.div>
             </Link>
 

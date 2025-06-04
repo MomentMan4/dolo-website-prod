@@ -1,14 +1,14 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X } from "lucide-react"
+import { X, CheckCircle, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { submitPrivateBuildForm } from "@/app/private-build/actions"
+import { logFormError } from "@/lib/error-monitoring"
 
 interface PrivateBuildFormProps {
   isOpen: boolean
@@ -16,30 +16,12 @@ interface PrivateBuildFormProps {
 }
 
 export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    company: "",
-    projectType: "",
-    vision: "",
-    budget: "",
-    timeline: "",
-    referralSource: "",
-  })
-
   const modalRef = useRef<HTMLDivElement>(null)
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle form submission
-    console.log("Form submitted:", formData)
-    onClose()
-  }
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [error, setError] = useState("")
+  const [debugInfo, setDebugInfo] = useState<string | null>(null)
+  const [submissionResult, setSubmissionResult] = useState<any>(null)
 
   // Close modal when clicking outside
   useEffect(() => {
@@ -51,13 +33,11 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
 
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside)
-      // Prevent scrolling when modal is open
       document.body.style.overflow = "hidden"
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
-      // Re-enable scrolling when modal closes
       document.body.style.overflow = "auto"
     }
   }, [isOpen, onClose])
@@ -78,6 +58,82 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
       document.removeEventListener("keydown", handleEscKey)
     }
   }, [isOpen, onClose])
+
+  // Reset form state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsSubmitting(false)
+      setIsSuccess(false)
+      setError("")
+      setDebugInfo(null)
+      setSubmissionResult(null)
+    }
+  }, [isOpen])
+
+  const handleSubmit = async (formData: FormData) => {
+    setIsSubmitting(true)
+    setError("")
+    setDebugInfo(null)
+
+    try {
+      // Client-side validation
+      const name = formData.get("name") as string
+      const email = formData.get("email") as string
+      const projectType = formData.get("projectType") as string
+      const vision = formData.get("vision") as string
+      const budget = formData.get("budget") as string
+      const timeline = formData.get("timeline") as string
+
+      if (!name || !email || !projectType || !vision || !budget || !timeline) {
+        throw new Error("Please fill in all required fields")
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(email)) {
+        throw new Error("Please enter a valid email address")
+      }
+
+      console.log("Submitting private build form with data:", {
+        name,
+        email,
+        projectType,
+        budget,
+        timeline,
+      })
+
+      const result = await submitPrivateBuildForm(formData)
+
+      console.log("Private build form submission result:", result)
+      setSubmissionResult(result)
+
+      if (result?.success) {
+        setIsSuccess(true)
+        // Close modal after 3 seconds
+        setTimeout(() => {
+          onClose()
+        }, 3000)
+      } else {
+        throw new Error("Submission failed - no success response")
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred"
+      setError(errorMessage)
+
+      logFormError("PrivateBuild", "submit", err instanceof Error ? err : new Error(errorMessage), {
+        formData: Object.fromEntries(formData.entries()),
+      })
+
+      console.error("Form submission error:", err)
+
+      // Add debug info for development
+      if (process.env.NODE_ENV === "development") {
+        setDebugInfo(err instanceof Error ? err.stack || err.message : JSON.stringify(err))
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   // Animation variants
   const backdrop = {
@@ -108,6 +164,46 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
 
   if (!isOpen) return null
 
+  if (isSuccess) {
+    return (
+      <AnimatePresence>
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          variants={backdrop}
+        >
+          <motion.div
+            ref={modalRef}
+            className="relative mx-auto my-8 w-full max-w-md overflow-hidden rounded-xl bg-white p-8 shadow-2xl"
+            variants={modal}
+          >
+            <div className="text-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              >
+                <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-500" />
+              </motion.div>
+              <h3 className="mb-2 text-2xl font-bold text-navy">Application Submitted!</h3>
+              <p className="text-gray-600">
+                Thank you for your interest in Private Build. We'll review your application and get back to you within
+                24 hours.
+              </p>
+              {submissionResult?.fallbackUsed && (
+                <p className="mt-2 text-xs text-orange-600">
+                  Note: Your application was saved using our backup system and will be processed normally.
+                </p>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    )
+  }
+
   return (
     <AnimatePresence>
       <motion.div
@@ -119,7 +215,7 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
       >
         <motion.div
           ref={modalRef}
-          className="relative mx-auto my-8 w-full max-w-2xl overflow-hidden rounded-xl bg-white p-6 shadow-2xl md:p-8"
+          className="relative mx-auto my-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-2xl md:p-8"
           variants={modal}
         >
           <button
@@ -132,56 +228,33 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
 
           <h2 className="mb-6 text-2xl font-bold text-navy md:text-3xl">Apply for a Private Build</h2>
 
-          <form onSubmit={handleSubmit}>
+          <form action={handleSubmit} className="space-y-6">
             <motion.div className="space-y-6" variants={formFields} initial="hidden" animate="visible">
               <div className="grid gap-6 md:grid-cols-2">
                 <motion.div variants={formField}>
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="mt-1"
-                    required
-                  />
+                  <Label htmlFor="name">Full Name *</Label>
+                  <Input id="name" name="name" className="mt-1" required />
                 </motion.div>
 
                 <motion.div variants={formField}>
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="mt-1"
-                    required
-                  />
+                  <Label htmlFor="email">Email Address *</Label>
+                  <Input id="email" name="email" type="email" className="mt-1" required />
                 </motion.div>
               </div>
 
               <motion.div variants={formField}>
                 <Label htmlFor="company">Company Name</Label>
-                <Input
-                  id="company"
-                  name="company"
-                  value={formData.company}
-                  onChange={handleChange}
-                  className="mt-1"
-                  required
-                />
+                <Input id="company" name="company" className="mt-1" />
               </motion.div>
 
               <motion.div variants={formField}>
-                <Label htmlFor="projectType">What type of project are you looking to build?</Label>
+                <Label htmlFor="projectType">What type of project are you looking to build? *</Label>
                 <select
                   id="projectType"
                   name="projectType"
-                  value={formData.projectType}
-                  onChange={handleChange}
                   className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
                   required
+                  defaultValue=""
                 >
                   <option value="" disabled>
                     Select an option
@@ -196,27 +269,19 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
               </motion.div>
 
               <motion.div variants={formField}>
-                <Label htmlFor="vision">Describe your project vision and goals</Label>
-                <Textarea
-                  id="vision"
-                  name="vision"
-                  value={formData.vision}
-                  onChange={handleChange}
-                  className="mt-1 min-h-[120px]"
-                  required
-                />
+                <Label htmlFor="vision">Describe your project vision and goals *</Label>
+                <Textarea id="vision" name="vision" className="mt-1 min-h-[120px]" required />
               </motion.div>
 
               <div className="grid gap-6 md:grid-cols-2">
                 <motion.div variants={formField}>
-                  <Label htmlFor="budget">Budget Range</Label>
+                  <Label htmlFor="budget">Budget Range *</Label>
                   <select
                     id="budget"
                     name="budget"
-                    value={formData.budget}
-                    onChange={handleChange}
                     className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
                     required
+                    defaultValue=""
                   >
                     <option value="" disabled>
                       Select an option
@@ -229,14 +294,13 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
                 </motion.div>
 
                 <motion.div variants={formField}>
-                  <Label htmlFor="timeline">Desired Timeline</Label>
+                  <Label htmlFor="timeline">Desired Timeline *</Label>
                   <select
                     id="timeline"
                     name="timeline"
-                    value={formData.timeline}
-                    onChange={handleChange}
                     className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
                     required
+                    defaultValue=""
                   >
                     <option value="" disabled>
                       Select an option
@@ -254,10 +318,8 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
                 <select
                   id="referralSource"
                   name="referralSource"
-                  value={formData.referralSource}
-                  onChange={handleChange}
                   className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
-                  required
+                  defaultValue=""
                 >
                   <option value="" disabled>
                     Select an option
@@ -270,14 +332,36 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
                 </select>
               </motion.div>
 
+              {error && (
+                <motion.div
+                  className="rounded-md bg-red-50 border border-red-200 p-4"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <div className="flex items-start">
+                    <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm text-red-800">{error}</p>
+                      {debugInfo && process.env.NODE_ENV === "development" && (
+                        <details className="mt-2">
+                          <summary className="text-xs text-red-600 cursor-pointer">Debug Information</summary>
+                          <pre className="mt-2 text-xs overflow-auto p-2 bg-gray-100 rounded max-h-32">{debugInfo}</pre>
+                        </details>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               <motion.div variants={formField}>
                 <Button
                   type="submit"
                   className="w-full bg-navy text-white hover:bg-navy-600"
+                  disabled={isSubmitting}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Submit Application
+                  {isSubmitting ? "Submitting..." : "Submit Application"}
                 </Button>
               </motion.div>
             </motion.div>

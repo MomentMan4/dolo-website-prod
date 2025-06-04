@@ -34,6 +34,7 @@ export function QuizModal({ isOpen, onClose }: QuizModalProps) {
   const [email, setEmail] = useState("")
   const [consent, setConsent] = useState(false)
   const [emailError, setEmailError] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
 
   const questions: Question[] = [
@@ -91,6 +92,7 @@ export function QuizModal({ isOpen, onClose }: QuizModalProps) {
       setEmail("")
       setConsent(false)
       setEmailError("")
+      setIsSubmitting(false)
 
       // Prevent body scrolling when modal is open
       document.body.style.overflow = "hidden"
@@ -161,7 +163,7 @@ export function QuizModal({ isOpen, onClose }: QuizModalProps) {
     return re.test(email)
   }
 
-  const handleEmailSubmit = () => {
+  const handleEmailSubmit = async () => {
     if (!email) {
       setEmailError("Email is required")
       return
@@ -178,21 +180,45 @@ export function QuizModal({ isOpen, onClose }: QuizModalProps) {
     }
 
     setEmailError("")
+    setIsSubmitting(true)
 
-    // Here you would typically send the email to your backend
-    // For now, we'll just show the result
-    setShowEmailForm(false)
-    setShowResult(true)
+    try {
+      // First try to store in localStorage as a fallback
+      localStorage.setItem(
+        "quiz-result",
+        JSON.stringify({
+          email,
+          result: result?.plan,
+          timestamp: new Date().toISOString(),
+        }),
+      )
 
-    // Store data in localStorage for demo purposes
-    localStorage.setItem(
-      "quiz-result",
-      JSON.stringify({
-        email,
-        result: result?.plan,
-        timestamp: new Date().toISOString(),
-      }),
-    )
+      // Then try to send via API
+      const response = await fetch("/api/quiz-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          plan: result?.plan,
+          description: result?.description,
+          link: result?.link,
+          consent,
+        }),
+      })
+
+      // Even if API fails, we'll show success since we have the localStorage backup
+      setShowEmailForm(false)
+      setShowResult(true)
+    } catch (error) {
+      console.error("Error submitting quiz email:", error)
+      // Still show success since we have the localStorage backup
+      setShowEmailForm(false)
+      setShowResult(true)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!isOpen) return null
@@ -317,11 +343,16 @@ export function QuizModal({ isOpen, onClose }: QuizModalProps) {
                       setCurrentQuestion(questions.length - 1)
                     }}
                     className="border-navy text-navy hover:bg-navy/10"
+                    disabled={isSubmitting}
                   >
                     Back
                   </Button>
-                  <Button className="bg-orange text-white hover:bg-orange-600" onClick={handleEmailSubmit}>
-                    See My Results
+                  <Button
+                    className="bg-orange text-white hover:bg-orange-600"
+                    onClick={handleEmailSubmit}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Processing..." : "See My Results"}
                   </Button>
                 </div>
               </div>

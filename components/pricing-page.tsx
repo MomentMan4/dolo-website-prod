@@ -4,9 +4,49 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Check, HelpCircle } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import Link from "next/link"
+import { useState } from "react"
 
 export function PricingPage() {
+  // Add state for checkout loading
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+
+  // Add checkout handler function
+  const handleCheckout = async (plan: string) => {
+    setCheckoutLoading(plan)
+
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plan: plan.toLowerCase(),
+          customerData: {
+            email: "", // Will be collected in Stripe Checkout
+            name: "", // Will be collected in Stripe Checkout
+          },
+          options: {
+            rushDelivery: false, // Can be added as an option later
+          },
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error("No checkout URL received")
+      }
+    } catch (error) {
+      console.error("Checkout error:", error)
+      alert("There was an error starting checkout. Please try again.")
+    } finally {
+      setCheckoutLoading(null)
+    }
+  }
+
   // Animation variants
   const container = {
     hidden: { opacity: 0 },
@@ -142,8 +182,12 @@ export function PricingPage() {
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 className="mt-auto"
               >
-                <Button className="w-full bg-navy text-white hover:bg-navy-600" asChild>
-                  <Link href="/start?plan=launch">{buttonText}</Link>
+                <Button
+                  className="w-full bg-navy text-white hover:bg-navy-600"
+                  onClick={() => handleCheckout("essential")}
+                  disabled={checkoutLoading === "essential"}
+                >
+                  {checkoutLoading === "essential" ? "Loading..." : buttonText}
                 </Button>
               </motion.div>
             </motion.div>
@@ -269,8 +313,12 @@ export function PricingPage() {
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 className="mt-auto"
               >
-                <Button className="w-full bg-orange text-white hover:bg-orange-600" asChild>
-                  <Link href="/start?plan=grow">{buttonText}</Link>
+                <Button
+                  className="w-full bg-orange text-white hover:bg-orange-600"
+                  onClick={() => handleCheckout("pro")}
+                  disabled={checkoutLoading === "pro"}
+                >
+                  {checkoutLoading === "pro" ? "Loading..." : buttonText}
                 </Button>
               </motion.div>
             </motion.div>
@@ -395,8 +443,12 @@ export function PricingPage() {
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 className="mt-auto"
               >
-                <Button className="w-full bg-teal text-white hover:bg-teal-600" asChild>
-                  <Link href="/start?plan=elevate">{buttonText}</Link>
+                <Button
+                  className="w-full bg-teal text-white hover:bg-teal-600"
+                  onClick={() => handleCheckout("premier")}
+                  disabled={checkoutLoading === "premier"}
+                >
+                  {checkoutLoading === "premier" ? "Loading..." : buttonText}
                 </Button>
               </motion.div>
             </motion.div>
