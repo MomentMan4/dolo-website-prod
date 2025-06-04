@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Lock, Mail } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client" // Updated import to use the exported instance
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("")
@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  const supabase = createClient()
+  // No need to create a client here, just use the imported instance
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,14 +28,14 @@ export default function AdminLoginPage() {
 
     try {
       // First, check if user exists in admin_users table
-      const { data: adminUser } = await supabase
+      const { data: adminUser, error: userError } = await supabase
         .from("admin_users")
         .select("*")
         .eq("email", email)
         .eq("is_active", true)
         .single()
 
-      if (!adminUser) {
+      if (userError || !adminUser) {
         setError("Invalid credentials or account not authorized")
         setIsLoading(false)
         return
@@ -60,6 +60,7 @@ export default function AdminLoginPage() {
       router.push("/admin/dashboard")
       router.refresh()
     } catch (error) {
+      console.error("Login error:", error)
       setError("An unexpected error occurred")
       setIsLoading(false)
     }

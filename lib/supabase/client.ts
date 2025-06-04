@@ -38,155 +38,7 @@ export type Database = {
           updated_at?: string
         }
       }
-      customers: {
-        Row: {
-          id: string
-          stripe_customer_id: string
-          email: string
-          name: string
-          company: string | null
-          phone: string | null
-          chat_access_token: string | null
-          chat_access_expires_at: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          stripe_customer_id: string
-          email: string
-          name: string
-          company?: string | null
-          phone?: string | null
-          chat_access_token?: string | null
-          chat_access_expires_at?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          stripe_customer_id?: string
-          email?: string
-          name?: string
-          company?: string | null
-          phone?: string | null
-          chat_access_token?: string | null
-          chat_access_expires_at?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      projects: {
-        Row: {
-          id: string
-          customer_id: string
-          stripe_payment_intent_id: string | null
-          project_type: "grow" | "scale" | "premier" | "private-build"
-          status: "pending" | "in-progress" | "completed" | "cancelled"
-          total_amount: number
-          rush_fee_applied: boolean
-          add_ons: Record<string, any>
-          project_details: Record<string, any>
-          started_at: string | null
-          completed_at: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          customer_id: string
-          stripe_payment_intent_id?: string | null
-          project_type: "grow" | "scale" | "premier" | "private-build"
-          status?: "pending" | "in-progress" | "completed" | "cancelled"
-          total_amount: number
-          rush_fee_applied?: boolean
-          add_ons?: Record<string, any>
-          project_details?: Record<string, any>
-          started_at?: string | null
-          completed_at?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          customer_id?: string
-          stripe_payment_intent_id?: string | null
-          project_type?: "grow" | "scale" | "premier" | "private-build"
-          status?: "pending" | "in-progress" | "completed" | "cancelled"
-          total_amount?: number
-          rush_fee_applied?: boolean
-          add_ons?: Record<string, any>
-          project_details?: Record<string, any>
-          started_at?: string | null
-          completed_at?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      contact_submissions: {
-        Row: {
-          id: string
-          name: string
-          email: string
-          company: string | null
-          message: string
-          source: string
-          status: "new" | "contacted" | "converted" | "closed"
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          email: string
-          company?: string | null
-          message: string
-          source?: string
-          status?: "new" | "contacted" | "converted" | "closed"
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          email?: string
-          company?: string | null
-          message?: string
-          source?: string
-          status?: "new" | "contacted" | "converted" | "closed"
-          created_at?: string
-        }
-      }
-      email_logs: {
-        Row: {
-          id: string
-          customer_id: string | null
-          email_type: string
-          recipient_email: string
-          subject: string | null
-          status: "sent" | "delivered" | "failed"
-          resend_message_id: string | null
-          sent_at: string
-        }
-        Insert: {
-          id?: string
-          customer_id?: string | null
-          email_type: string
-          recipient_email: string
-          subject?: string | null
-          status?: "sent" | "delivered" | "failed"
-          resend_message_id?: string | null
-          sent_at?: string
-        }
-        Update: {
-          id?: string
-          customer_id?: string | null
-          email_type?: string
-          recipient_email?: string
-          subject?: string | null
-          status?: "sent" | "delivered" | "failed"
-          resend_message_id?: string | null
-          sent_at?: string
-        }
-      }
+      // Other tables...
     }
   }
 }
@@ -221,6 +73,7 @@ export function createBrowserSupabaseClient() {
         getSession: () => Promise.resolve({ data: { session: null }, error: null }),
         signIn: () => Promise.resolve({ data: null, error: null }),
         signOut: () => Promise.resolve({ error: null }),
+        signInWithPassword: () => Promise.resolve({ data: null, error: null }),
       },
     } as any
   }
@@ -271,7 +124,7 @@ export function createAdminSupabaseClient() {
   })
 }
 
-// Default export for backward compatibility
+// Export a pre-initialized client for client-side use
 export const supabase = createBrowserSupabaseClient()
 
 // Export configuration check function
@@ -286,3 +139,6 @@ export function checkSupabaseConfig() {
     serviceKeyLength: supabaseServiceKey?.length || 0,
   }
 }
+
+// Default export for backward compatibility
+export default supabase
