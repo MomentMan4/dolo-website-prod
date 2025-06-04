@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Lock, Mail } from "lucide-react"
-import { supabase } from "@/lib/supabase/client" // Updated import to use the exported instance
+import { createClient } from "@/lib/supabase/client"
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("")
@@ -19,7 +19,9 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-  // No need to create a client here, just use the imported instance
+
+  // Create Supabase client instance
+  const supabase = createClient()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,6 +29,13 @@ export default function AdminLoginPage() {
     setError("")
 
     try {
+      // Validate inputs
+      if (!email || !password) {
+        setError("Please enter both email and password")
+        setIsLoading(false)
+        return
+      }
+
       // First, check if user exists in admin_users table
       const { data: adminUser, error: userError } = await supabase
         .from("admin_users")
@@ -36,6 +45,7 @@ export default function AdminLoginPage() {
         .single()
 
       if (userError || !adminUser) {
+        console.error("Admin user lookup error:", userError)
         setError("Invalid credentials or account not authorized")
         setIsLoading(false)
         return
@@ -48,20 +58,36 @@ export default function AdminLoginPage() {
       })
 
       if (authError) {
-        setError(authError.message)
+        console.error("Authentication error:", authError)
+        setError(authError.message || "Authentication failed")
         setIsLoading(false)
         return
       }
 
-      // Update last login
-      await supabase.from("admin_users").update({ last_login: new Date().toISOString() }).eq("id", adminUser.id)
+      if (!data.user) {
+        setError("Authentication failed - no user returned")
+        setIsLoading(false)
+        return
+      }
+
+      // Update last login timestamp
+      const { error: updateError } = await supabase
+        .from("admin_users")
+        .update({ last_login: new Date().toISOString() })
+        .eq("id", adminUser.id)
+
+      if (updateError) {
+        console.warn("Failed to update last login:", updateError)
+        // Don't fail the login for this
+      }
 
       // Redirect to dashboard
       router.push("/admin/dashboard")
       router.refresh()
     } catch (error) {
-      console.error("Login error:", error)
-      setError("An unexpected error occurred")
+      console.error("Unexpected login error:", error)
+      setError("An unexpected error occurred. Please try again.")
+    } finally {
       setIsLoading(false)
     }
   }
@@ -104,6 +130,7 @@ export default function AdminLoginPage() {
                   className="pl-10 h-12 border-gray-200 focus:border-orange focus:ring-orange"
                   placeholder="admin@dolo.dev"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -122,11 +149,13 @@ export default function AdminLoginPage() {
                   className="pl-10 pr-10 h-12 border-gray-200 focus:border-orange focus:ring-orange"
                   placeholder="Enter your password"
                   required
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                  disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -136,7 +165,7 @@ export default function AdminLoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-orange hover:bg-orange-600 text-white font-medium"
+              className="w-full h-12 bg-orange hover:bg-orange-600 text-white font-medium disabled:opacity-50"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
