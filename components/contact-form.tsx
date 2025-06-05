@@ -2,31 +2,55 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useCallback } from "react"
 import { motion, useInView } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { AlertCircle, CheckCircle } from "lucide-react"
+import { AlertCircle, CheckCircle, RefreshCw, AlertTriangle } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
+// Remove these complex imports
+// import { contactFormValidator } from "@/lib/contact-form-validator"
+// import { contactApiClient } from "@/lib/contact-api-client"
+// import { contactErrorHandler } from "@/lib/contact-error-handler"
+
+interface FormState {
+  name: string
+  email: string
+  contactReason: string
+  stage: string
+  message: string
+}
 
 interface SubmissionResult {
   success: boolean
   requestId?: string
   details?: any
   error?: string
-  suggestions?: string[]
+}
+
+const INITIAL_FORM_STATE: FormState = {
+  name: "",
+  email: "",
+  contactReason: "",
+  stage: "",
+  message: "",
+}
+
+const INITIAL_SUBMISSION_STATE = {
+  isSubmitting: false,
+  isSuccess: false,
+  error: null,
+  requestId: null,
+  retryCount: 0,
+  lastAttempt: null,
 }
 
 export function ContactForm() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    contactReason: "",
-    stage: "",
-    message: "",
-  })
+  const [formData, setFormData] = useState<FormState>(INITIAL_FORM_STATE)
+  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({})
+  const [fieldTouched, setFieldTouched] = useState<Record<string, boolean>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [lastSubmissionResult, setLastSubmissionResult] = useState<SubmissionResult | null>(null)
@@ -34,90 +58,113 @@ export function ContactForm() {
   const formRef = useRef(null)
   const isInView = useInView(formRef, { once: true, margin: "-100px" })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      const { name, value } = e.target
 
-  const validateClientSide = (): string[] => {
-    const errors: string[] = []
+      setFormData((prev) => ({ ...prev, [name]: value }))
 
-    if (!formData.name.trim()) {
-      errors.push("Name is required")
+      // Mark field as touched
+      setFieldTouched((prev) => ({ ...prev, [name]: true }))
+
+      // Clear validation errors for this field when user starts typing
+      if (validationErrors[name]) {
+        setValidationErrors((prev) => {
+          const newErrors = { ...prev }
+          delete newErrors[name]
+          return newErrors
+        })
+      }
+    },
+    [validationErrors],
+  )
+
+  const validateForm = useCallback((): boolean => {
+    console.log("=== FORM VALIDATION START ===")
+
+    const errors: Record<string, string[]> = {}
+
+    if (!formData.name) {
+      errors.name = ["Name is required"]
     }
 
-    if (!formData.email.trim()) {
-      errors.push("Email is required")
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(formData.email.trim())) {
-        errors.push("Please enter a valid email address")
-      }
+    if (!formData.email) {
+      errors.email = ["Email is required"]
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = ["Email is invalid"]
     }
 
     if (!formData.contactReason) {
-      errors.push("Please select what you're contacting us about")
+      errors.contactReason = ["Contact reason is required"]
     }
 
     if (!formData.stage) {
-      errors.push("Please select what stage you're in")
+      errors.stage = ["Stage is required"]
     }
 
-    if (!formData.message.trim()) {
+    if (!formData.message) {
+      errors.message = ["Message is required"]
+    }
+
+    setValidationErrors(errors)
+
+    if (Object.keys(errors).length > 0) {
+      console.log("Form validation failed:", errors)
+
+      // Show toast with first error
+      const firstError = Object.values(errors)[0]?.[0]
+      if (firstError) {
+        toast({
+          title: "Please fix the following error:",
+          description: firstError,
+          variant: "destructive",
+        })
+      }
+
+      return false
+    }
+
+    console.log("Form validation passed")
+    return true
+  }, [formData])
+
+  const resetForm = useCallback(() => {
+    setFormData(INITIAL_FORM_STATE)
+    setIsSuccess(false)
+    setValidationErrors({})
+    setFieldTouched({})
+  }, [])
+
+  const createCompleteMessage = () => {
+    return `Contact Reason: ${formData.contactReason}\nStage: ${formData.stage}\nMessage: ${formData.message}`
+  }
+
+  const validateClientSide = () => {
+    const errors: string[] = []
+
+    if (!formData.name) {
+      errors.push("Name is required")
+    }
+
+    if (!formData.email) {
+      errors.push("Email is required")
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.push("Email is invalid")
+    }
+
+    if (!formData.contactReason) {
+      errors.push("Contact reason is required")
+    }
+
+    if (!formData.stage) {
+      errors.push("Stage is required")
+    }
+
+    if (!formData.message) {
       errors.push("Message is required")
-    } else if (formData.message.trim().length < 10) {
-      errors.push("Message must be at least 10 characters long")
     }
 
     return errors
-  }
-
-  const createCompleteMessage = (): string => {
-    // Create a comprehensive message that includes all form context
-    let completeMessage = formData.message.trim()
-
-    // Add context information
-    if (formData.contactReason) {
-      completeMessage = `Contact Reason: ${formData.contactReason}\n\n` + completeMessage
-    }
-
-    if (formData.stage) {
-      completeMessage = completeMessage + `\n\nStage: ${formData.stage}`
-    }
-
-    return completeMessage
-  }
-
-  const createJSONPayload = () => {
-    const completeMessage = createCompleteMessage()
-
-    return {
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      message: completeMessage,
-      company: "", // Empty string for company
-      source: "contact-form",
-    }
-  }
-
-  const submitForm = async (): Promise<Response> => {
-    console.log("=== SUBMITTING CONTACT FORM ===")
-    const jsonPayload = createJSONPayload()
-
-    console.log("JSON payload:", jsonPayload)
-
-    const response = await fetch("/api/contact", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(jsonPayload),
-    })
-
-    console.log("Response status:", response.status)
-    console.log("Response headers:", Object.fromEntries(response.headers.entries()))
-
-    return response
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -127,74 +174,77 @@ export function ContactForm() {
 
     const submissionId = Math.random().toString(36).substring(7)
     console.log(`=== CONTACT FORM SUBMISSION [${submissionId}] START ===`)
-    console.log("Current form data:", formData)
-    console.log("Form validation state:", {
-      hasName: !!formData.name.trim(),
-      hasEmail: !!formData.email.trim(),
-      hasMessage: !!formData.message.trim(),
-      hasContactReason: !!formData.contactReason,
-      hasStage: !!formData.stage,
-    })
 
     try {
       // Client-side validation first
-      const clientErrors = validateClientSide()
-      if (clientErrors.length > 0) {
-        console.error(`[${submissionId}] Client-side validation failed:`, clientErrors)
+      // const clientErrors = validateClientSide()
+      // if (clientErrors.length > 0) {
+      //   console.error(`[${submissionId}] Client-side validation failed:`, clientErrors)
 
-        toast({
-          title: "Please fix the following errors:",
-          description: clientErrors.join(", "),
-          variant: "destructive",
-        })
+      //   toast({
+      //     title: "Please fix the following errors:",
+      //     description: clientErrors.join(", "),
+      //     variant: "destructive",
+      //   })
 
-        setLastSubmissionResult({
-          success: false,
-          error: "Client-side validation failed",
-          details: { errors: clientErrors },
-        })
+      //   setLastSubmissionResult({
+      //     success: false,
+      //     error: "Client-side validation failed",
+      //     details: { errors: clientErrors },
+      //   })
 
+      //   setIsSubmitting(false)
+      //   return
+      // }
+
+      const isValid = validateForm()
+
+      if (!isValid) {
+        setIsSubmitting(false)
         return
       }
 
       console.log(`[${submissionId}] Client-side validation passed`)
 
-      // Submit the form
-      console.log(`[${submissionId}] Submitting form...`)
-      const response = await submitForm()
+      // Create the payload exactly like the quiz does
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: createCompleteMessage(),
+        company: "",
+        source: "contact-form",
+      }
+
+      console.log(`[${submissionId}] Submitting with payload:`, payload)
+
+      // Simple fetch call like the quiz
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+
+      console.log(`[${submissionId}] Response status:`, response.status)
 
       if (!response.ok) {
-        const errorText = await response.text()
-        console.log(`[${submissionId}] Submission failed:`, {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-        })
+        let errorMessage = `HTTP ${response.status}: Submission failed`
 
-        // Try to parse error response
-        let errorData
         try {
-          errorData = JSON.parse(errorText)
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorMessage
         } catch {
-          errorData = { error: `HTTP ${response.status}: ${response.statusText}`, details: errorText }
+          errorMessage = `Server error (${response.status})`
         }
 
-        setLastSubmissionResult({
-          success: false,
-          requestId: errorData.requestId,
-          error: errorData.error,
-          details: errorData.details,
-          suggestions: errorData.suggestions,
-        })
-
-        throw new Error(errorData.error || `HTTP ${response.status}: Submission failed`)
+        throw new Error(errorMessage)
       }
 
       // Process successful response
-      console.log(`[${submissionId}] Processing response...`)
       const responseData = await response.json()
-
       console.log(`[${submissionId}] Submission successful:`, responseData)
+
       setLastSubmissionResult({
         success: true,
         requestId: responseData.requestId,
@@ -218,12 +268,10 @@ export function ContactForm() {
     } catch (error) {
       console.error(`[${submissionId}] Submission failed:`, error)
 
-      if (!lastSubmissionResult) {
-        setLastSubmissionResult({
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        })
-      }
+      setLastSubmissionResult({
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      })
 
       toast({
         title: "Submission failed",
@@ -241,12 +289,14 @@ export function ContactForm() {
       label: "Full Name",
       type: "text",
       required: true,
+      placeholder: "Your full name",
     },
     {
       id: "email",
       label: "Email",
       type: "email",
       required: true,
+      placeholder: "your.email@example.com",
     },
     {
       id: "contactReason",
@@ -280,6 +330,7 @@ export function ContactForm() {
       label: "What would you like to share?",
       type: "textarea",
       required: true,
+      placeholder: "Please tell us more about your project, timeline, or any specific requirements...",
     },
   ]
 
@@ -314,7 +365,7 @@ export function ContactForm() {
             </p>
           </motion.div>
 
-          {/* Debug Information (only show if there was an error) */}
+          {/* Error Display - simplified like quiz */}
           {lastSubmissionResult && !lastSubmissionResult.success && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -329,26 +380,27 @@ export function ContactForm() {
                   {lastSubmissionResult.requestId && (
                     <p className="mt-1 text-xs text-red-600">Request ID: {lastSubmissionResult.requestId}</p>
                   )}
-                  {lastSubmissionResult.details?.errors && (
-                    <div className="mt-2">
-                      <p className="text-xs font-medium text-red-800">Validation Errors:</p>
-                      <ul className="mt-1 text-xs text-red-700 list-disc list-inside">
-                        {lastSubmissionResult.details.errors.map((error: string, index: number) => (
-                          <li key={index}>{error}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {lastSubmissionResult.suggestions && (
-                    <div className="mt-2">
-                      <p className="text-xs font-medium text-red-800">Suggestions:</p>
-                      <ul className="mt-1 text-xs text-red-700 list-disc list-inside">
-                        {lastSubmissionResult.suggestions.map((suggestion, index) => (
-                          <li key={index}>{suggestion}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Validation Errors */}
+          {Object.keys(validationErrors).length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4"
+            >
+              <div className="flex items-start">
+                <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5 mr-3 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium text-yellow-800">Please fix the following errors:</h3>
+                  <ul className="mt-2 text-sm text-yellow-700 list-disc list-inside">
+                    {Object.entries(validationErrors).map(([field, errors]) =>
+                      errors.map((error, index) => <li key={`${field}-${index}`}>{error}</li>),
+                    )}
+                  </ul>
                 </div>
               </div>
             </motion.div>
@@ -368,7 +420,7 @@ export function ContactForm() {
               {lastSubmissionResult?.requestId && (
                 <p className="mb-4 text-xs text-gray-500">Reference ID: {lastSubmissionResult.requestId}</p>
               )}
-              <Button onClick={() => setIsSuccess(false)} className="bg-orange text-white hover:bg-orange-600">
+              <Button onClick={resetForm} className="bg-orange text-white hover:bg-orange-600">
                 Send Another Message
               </Button>
             </motion.div>
@@ -394,10 +446,14 @@ export function ContactForm() {
                     <select
                       id={field.id}
                       name={field.id}
-                      value={formData[field.id as keyof typeof formData]}
+                      value={formData[field.id as keyof FormState]}
                       onChange={handleChange}
                       required={field.required}
-                      className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-orange focus:outline-none focus:ring-1 focus:ring-orange"
+                      className={`mt-1 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
+                        validationErrors[field.id]
+                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                          : "border-gray-300 focus:border-orange focus:ring-orange"
+                      } bg-white`}
                     >
                       {field.options?.map((option) => (
                         <option key={option.value} value={option.value} disabled={option.disabled}>
@@ -409,24 +465,36 @@ export function ContactForm() {
                     <Textarea
                       id={field.id}
                       name={field.id}
-                      value={formData[field.id as keyof typeof formData]}
+                      value={formData[field.id as keyof FormState]}
                       onChange={handleChange}
                       required={field.required}
-                      className="min-h-[120px]"
-                      placeholder="Please tell us more about your project, timeline, or any specific requirements..."
+                      placeholder={field.placeholder}
+                      className={`min-h-[120px] ${
+                        validationErrors[field.id] ? "border-red-300 focus:border-red-500 focus:ring-red-500" : ""
+                      }`}
                     />
                   ) : (
                     <Input
                       id={field.id}
                       name={field.id}
                       type={field.type}
-                      value={formData[field.id as keyof typeof formData]}
+                      value={formData[field.id as keyof FormState]}
                       onChange={handleChange}
                       required={field.required}
-                      placeholder={
-                        field.id === "name" ? "Your full name" : field.id === "email" ? "your.email@example.com" : ""
+                      placeholder={field.placeholder}
+                      className={
+                        validationErrors[field.id] ? "border-red-300 focus:border-red-500 focus:ring-red-500" : ""
                       }
                     />
+                  )}
+
+                  {/* Field-specific error display */}
+                  {validationErrors[field.id] && (
+                    <div className="mt-1 text-sm text-red-600">
+                      {validationErrors[field.id].map((error, errorIndex) => (
+                        <div key={errorIndex}>{error}</div>
+                      ))}
+                    </div>
                   )}
                 </motion.div>
               ))}
@@ -449,7 +517,14 @@ export function ContactForm() {
                     className="w-full bg-orange text-white hover:bg-orange-600 md:w-auto"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Sending..." : "Send Message"}
+                    {isSubmitting ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      "Send Message"
+                    )}
                   </Button>
                 </motion.div>
               </motion.div>

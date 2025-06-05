@@ -1,5 +1,4 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
-import { cookies } from "next/headers"
 
 export type Database = {
   public: {
@@ -346,20 +345,12 @@ export function createServerSupabaseClient() {
     return createMockClient() as any
   }
 
-  try {
-    const cookieStore = cookies()
-
-    return createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-      },
-    })
-  } catch (error) {
-    console.warn("Error creating server Supabase client:", error)
-    return createMockClient() as any
-  }
+  return createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  })
 }
 
 // Export a singleton instance for client-side use

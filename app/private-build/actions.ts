@@ -29,6 +29,11 @@ export async function submitPrivateBuildForm(formData: FormData) {
       throw new Error("Invalid email format")
     }
 
+    // Ensure vision is not empty
+    if (!data.vision || data.vision.trim() === "") {
+      data.vision = "No vision provided"
+    }
+
     // Submit to database with fallback
     const result = await submitPrivateBuildApplication(data)
 

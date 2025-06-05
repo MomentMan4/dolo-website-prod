@@ -13,34 +13,36 @@ export async function middleware(req: NextRequest) {
     }
 
     try {
+      // Use the auth helpers middleware client which handles cookies properly
       const supabase = createMiddlewareClient({ req, res })
 
       // Get the current session
       const {
         data: { session },
+        error: sessionError,
       } = await supabase.auth.getSession()
 
-      if (!session) {
-        // Redirect to login if no session
+      if (sessionError || !session) {
+        // Redirect to login if no session or error
         return NextResponse.redirect(new URL("/admin/login", req.url))
       }
 
       // Check if user is in admin_users table
-      const { data: adminUser } = await supabase
+      const { data: adminUser, error: adminError } = await supabase
         .from("admin_users")
         .select("*")
         .eq("email", session.user.email)
         .eq("is_active", true)
         .single()
 
-      if (!adminUser) {
+      if (adminError || !adminUser) {
         // Redirect to unauthorized if not an admin
         return NextResponse.redirect(new URL("/admin/unauthorized", req.url))
       }
     } catch (error) {
-      console.warn("Middleware error - allowing request to proceed:", error)
-      // Allow request to proceed if middleware fails during deployment
-      return res
+      console.warn("Middleware error - redirecting to login:", error)
+      // Redirect to login on any middleware error
+      return NextResponse.redirect(new URL("/admin/login", req.url))
     }
   }
 

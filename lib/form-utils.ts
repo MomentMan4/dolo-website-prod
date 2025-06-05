@@ -49,15 +49,15 @@ export async function safeSubmitToDatabase<T extends Record<string, any>>(
   try {
     // For contact_submissions, always use direct insertion (like Private Build)
     if (primaryTable === "contact_submissions" || fallbackTable === "contact_submissions") {
-      const { data: result, error } = await supabase
-        .from("contact_submissions")
-        .insert({
-          ...data,
-          created_at: new Date().toISOString(),
-          status: "new",
-        })
-        .select()
-        .single()
+      // Ensure message field is never null for contact_submissions
+      const contactData = {
+        ...data,
+        message: data.message || (data.vision ? `Application details: ${data.vision}` : "No message provided"),
+        created_at: new Date().toISOString(),
+        status: "new",
+      }
+
+      const { data: result, error } = await supabase.from("contact_submissions").insert(contactData).select().single()
 
       if (error) {
         console.error(`Contact submissions insertion failed:`, error)
@@ -98,13 +98,19 @@ export async function safeSubmitToDatabase<T extends Record<string, any>>(
     // Fallback to contact_submissions with transformed data
     const fallbackData = transformForFallback ? transformForFallback(data) : data
 
+    // Ensure message field is never null for fallback
+    const safeContactData = {
+      ...fallbackData,
+      message:
+        fallbackData.message ||
+        (fallbackData.vision ? `Application details: ${fallbackData.vision}` : "No message provided from fallback"),
+      created_at: new Date().toISOString(),
+      status: "new",
+    }
+
     const { data: fallbackResult, error: fallbackError } = await supabase
       .from("contact_submissions")
-      .insert({
-        ...fallbackData,
-        created_at: new Date().toISOString(),
-        status: "new",
-      })
+      .insert(safeContactData)
       .select()
       .single()
 
@@ -138,14 +144,17 @@ export async function submitContactForm(data: ContactSubmissionData): Promise<Fo
   const supabase = createRouteHandlerSupabaseClient()
 
   try {
+    // Ensure message is never null
+    const safeMessage = data.message || "No message provided"
+
     const { data: result, error } = await supabase
       .from("contact_submissions")
       .insert({
         name: data.name,
         email: data.email,
-        company: data.company,
-        message: data.message,
-        source: data.source,
+        company: data.company || null,
+        message: safeMessage,
+        source: data.source || "website",
         status: "new",
         created_at: new Date().toISOString(),
       })
@@ -181,12 +190,12 @@ export async function submitPrivateBuildApplication(data: PrivateBuildData): Pro
   return safeSubmitToDatabase("private_build_applications", "contact_submissions", data, (privateBuildData) => ({
     name: privateBuildData.name,
     email: privateBuildData.email,
-    company: privateBuildData.company,
+    company: privateBuildData.company || "Not provided",
     message: `Private Build Application:
-Project Type: ${privateBuildData.project_type}
-Budget: ${privateBuildData.budget}
-Timeline: ${privateBuildData.timeline}
-Vision: ${privateBuildData.vision}
+Project Type: ${privateBuildData.project_type || "Not specified"}
+Budget: ${privateBuildData.budget || "Not specified"}
+Timeline: ${privateBuildData.timeline || "Not specified"}
+Vision: ${privateBuildData.vision || "Not provided"}
 Referral Source: ${privateBuildData.referral_source || "Not provided"}`,
     source: "private-build",
   }))
@@ -225,16 +234,18 @@ export async function submitQuizResult(data: QuizResultData): Promise<FormSubmis
     console.warn("Quiz results table insertion failed, using contact_submissions:", quizError?.message)
 
     // Fallback to contact_submissions (direct insertion like Private Build)
+    const quizMessage = `Quiz Result: ${data.plan || "Not specified"}
+Description: ${data.description || "Not provided"}
+Link: ${data.link || "Not provided"}
+Consent: ${data.consent}`
+
     const { data: contactResult, error: contactError } = await supabase
       .from("contact_submissions")
       .insert({
-        name: data.email.split("@")[0],
+        name: data.email.split("@")[0] || "Quiz User",
         email: data.email,
         company: null,
-        message: `Quiz Result: ${data.plan}
-Description: ${data.description}
-Link: ${data.link}
-Consent: ${data.consent}`,
+        message: quizMessage,
         source: "quiz",
         status: "new",
         created_at: new Date().toISOString(),
