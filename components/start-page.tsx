@@ -429,7 +429,10 @@ export function StartPage() {
                         </p>
 
                         {addOns.maintenance && (
-                          <div className="flex items-center">
+                          <div
+                            className="mt-2 p-2 bg-white rounded-lg border border-gray-200 relative z-10"
+                            onClick={(e) => e.stopPropagation()} // Prevent click from affecting parent card
+                          >
                             <label className="relative inline-flex cursor-pointer items-center">
                               <input
                                 type="checkbox"

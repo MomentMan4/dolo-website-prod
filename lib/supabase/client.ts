@@ -1,4 +1,5 @@
-import { createClient } from "@supabase/supabase-js"
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
+import { cookies } from "next/headers"
 
 export type Database = {
   public: {
@@ -133,6 +134,11 @@ export type Database = {
           source: string
           status: "new" | "contacted" | "converted" | "closed"
           created_at: string
+          budget: string | null
+          timeline: string | null
+          project_type: string | null
+          vision: string | null
+          referral_source: string | null
         }
         Insert: {
           id?: string
@@ -143,6 +149,11 @@ export type Database = {
           source?: string
           status?: "new" | "contacted" | "converted" | "closed"
           created_at?: string
+          budget?: string | null
+          timeline?: string | null
+          project_type?: string | null
+          vision?: string | null
+          referral_source?: string | null
         }
         Update: {
           id?: string
@@ -153,6 +164,11 @@ export type Database = {
           source?: string
           status?: "new" | "contacted" | "converted" | "closed"
           created_at?: string
+          budget?: string | null
+          timeline?: string | null
+          project_type?: string | null
+          vision?: string | null
+          referral_source?: string | null
         }
       }
       email_logs: {
@@ -187,45 +203,114 @@ export type Database = {
           sent_at?: string
         }
       }
+      quiz_results: {
+        Row: {
+          id: string
+          email: string
+          plan: string
+          answers: Record<string, any>
+          consent: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          plan: string
+          answers: Record<string, any>
+          consent: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          plan?: string
+          answers?: Record<string, any>
+          consent?: boolean
+          created_at?: string
+        }
+      }
+      private_build_applications: {
+        Row: {
+          id: string
+          name: string
+          email: string
+          company: string | null
+          project_description: string
+          budget_range: string
+          timeline: string
+          status: "new" | "contacted" | "approved" | "rejected"
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          email: string
+          company?: string | null
+          project_description: string
+          budget_range: string
+          timeline: string
+          status?: "new" | "contacted" | "approved" | "rejected"
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string
+          company?: string | null
+          project_description?: string
+          budget_range?: string
+          timeline?: string
+          status?: "new" | "contacted" | "approved" | "rejected"
+          created_at?: string
+        }
+      }
     }
   }
 }
 
-// Get environment variables with validation
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// Create a mock client for when Supabase is not configured
+const createMockClient = () => ({
+  from: () => ({
+    select: () => Promise.resolve({ data: [], error: null }),
+    insert: () => Promise.resolve({ data: null, error: null }),
+    update: () => Promise.resolve({ data: null, error: null }),
+    delete: () => Promise.resolve({ data: null, error: null }),
+    eq: function () {
+      return this
+    },
+    order: function () {
+      return this
+    },
+    single: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
+  }),
+  auth: {
+    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    signIn: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
+    signOut: () => Promise.resolve({ error: null }),
+    signInWithPassword: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
+  },
+})
 
-// Validate required environment variables
-if (!supabaseUrl) {
-  console.warn("Missing Supabase URL. Some features may not work correctly.")
-}
-
-if (!supabaseAnonKey && !supabaseServiceKey) {
-  console.warn("Missing Supabase API key. Some features may not work correctly.")
-}
-
-// Create client-side Supabase client (for browser)
-export function createBrowserSupabaseClient() {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn("Missing Supabase configuration for browser client")
-    // Return a mock client to prevent crashes
-    return {
-      from: () => ({
-        select: () => Promise.resolve({ data: [], error: null }),
-        insert: () => Promise.resolve({ data: null, error: null }),
-        update: () => Promise.resolve({ data: null, error: null }),
-        delete: () => Promise.resolve({ data: null, error: null }),
-      }),
-      auth: {
-        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-        signIn: () => Promise.resolve({ data: null, error: null }),
-        signOut: () => Promise.resolve({ error: null }),
-      },
-    } as any
+// Export the createClient function
+export function createClient() {
+  // Check if we're in a browser environment
+  if (typeof window === "undefined") {
+    // We're in a server environment during build/prerendering
+    console.warn("Supabase client requested during server rendering - returning mock")
+    return createMockClient() as any
   }
 
-  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  // We're in a browser environment
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn("Missing Supabase configuration for browser client")
+    return createMockClient() as any
+  }
+
+  return createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
@@ -235,35 +320,15 @@ export function createBrowserSupabaseClient() {
 
 // Create server-side Supabase client (for API routes)
 export function createRouteHandlerSupabaseClient() {
-  if (!supabaseUrl) {
-    console.warn("Missing Supabase URL for server client")
-    return null
-  }
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  // Prefer service role key for server operations, fallback to anon key
-  const apiKey = supabaseServiceKey || supabaseAnonKey
-
-  if (!apiKey) {
-    console.warn("Missing API key for server client")
-    return null
-  }
-
-  return createClient<Database>(supabaseUrl, apiKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  })
-}
-
-// Create admin Supabase client (with service role key)
-export function createAdminSupabaseClient() {
   if (!supabaseUrl || !supabaseServiceKey) {
-    console.warn("Missing configuration for admin client")
-    return null
+    console.warn("Missing Supabase configuration for route handler client")
+    return createMockClient() as any
   }
 
-  return createClient<Database>(supabaseUrl, supabaseServiceKey, {
+  return createSupabaseClient<Database>(supabaseUrl, supabaseServiceKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
@@ -271,18 +336,57 @@ export function createAdminSupabaseClient() {
   })
 }
 
-// Default export for backward compatibility
-export const supabase = createBrowserSupabaseClient()
+// Create server-side Supabase client (for server components)
+export function createServerSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn("Missing Supabase configuration for server client")
+    return createMockClient() as any
+  }
+
+  try {
+    const cookieStore = cookies()
+
+    return createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+      },
+    })
+  } catch (error) {
+    console.warn("Error creating server Supabase client:", error)
+    return createMockClient() as any
+  }
+}
+
+// Export a singleton instance for client-side use
+let browserClient: ReturnType<typeof createClient> | null = null
+
+// Get the browser client (singleton pattern)
+export function getBrowserClient() {
+  if (typeof window === "undefined") {
+    return createMockClient() as any
+  }
+
+  if (!browserClient) {
+    browserClient = createClient()
+  }
+
+  return browserClient
+}
 
 // Export configuration check function
 export function checkSupabaseConfig() {
   return {
-    hasUrl: !!supabaseUrl,
-    hasAnonKey: !!supabaseAnonKey,
-    hasServiceKey: !!supabaseServiceKey,
-    url: supabaseUrl,
+    hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
     // Don't log actual keys for security
-    anonKeyLength: supabaseAnonKey?.length || 0,
-    serviceKeyLength: supabaseServiceKey?.length || 0,
+    anonKeyLength: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length || 0,
+    serviceKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length || 0,
   }
 }

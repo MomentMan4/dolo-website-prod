@@ -14,53 +14,126 @@ export function validateRequiredFields(data: Record<string, any>, requiredFields
   return null
 }
 
-export async function insertToContactSubmissions(data: {
+export async function insertContactSubmission(data: {
   name: string
   email: string
-  company: string | null
   message: string
-  source: string
+  budget?: string
 }) {
-  console.log("=== INSERTING TO CONTACT SUBMISSIONS ===")
-  console.log("Data to insert:", data)
-
   const supabase = createRouteHandlerSupabaseClient()
-
-  if (!supabase) {
-    console.warn("Supabase client not available - using fallback")
-    // Return a mock response to prevent crashes during deployment
-    return {
-      id: `mock_${Date.now()}`,
-      created_at: new Date().toISOString(),
-      ...data,
-    }
-  }
 
   try {
     const { data: result, error } = await supabase
       .from("contact_submissions")
       .insert([
         {
-          name: data.name,
-          email: data.email,
-          company: data.company,
-          message: data.message,
-          source: data.source,
-          status: "new",
+          name: data.name.trim(),
+          email: data.email.trim(),
+          message: data.message.trim(),
+          budget: data.budget?.trim() || null,
+          created_at: new Date().toISOString(),
         },
       ])
       .select()
       .single()
 
     if (error) {
-      console.error("Supabase insertion error:", error)
-      throw new Error(`Database error: ${error.message}`)
+      console.error("Database error:", error)
+      throw error
     }
 
-    console.log("Successfully inserted to contact_submissions:", result.id)
-    return result
+    return {
+      data: result,
+      table: "contact_submissions",
+      fallbackUsed: false,
+    }
   } catch (error) {
-    console.error("Error inserting to contact_submissions:", error)
+    console.error("Failed to insert contact submission:", error)
+    throw error
+  }
+}
+
+export async function insertQuizResult(data: {
+  email: string
+  plan: string
+  description: string
+  link: string
+  consent: boolean
+}) {
+  const supabase = createRouteHandlerSupabaseClient()
+
+  try {
+    const { data: result, error } = await supabase
+      .from("quiz_results")
+      .insert([
+        {
+          email: data.email.trim(),
+          plan: data.plan.trim(),
+          description: data.description.trim(),
+          link: data.link.trim(),
+          consent: data.consent,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Database error:", error)
+      throw error
+    }
+
+    return {
+      data: result,
+      table: "quiz_results",
+      fallbackUsed: false,
+    }
+  } catch (error) {
+    console.error("Failed to insert quiz result:", error)
+    throw error
+  }
+}
+
+export async function insertPrivateBuildApplication(data: {
+  name: string
+  email: string
+  project_type: string
+  budget: string
+  timeline: string
+  vision: string
+}) {
+  const supabase = createRouteHandlerSupabaseClient()
+
+  try {
+    const { data: result, error } = await supabase
+      .from("private_build_applications")
+      .insert([
+        {
+          name: data.name.trim(),
+          email: data.email.trim(),
+          project_type: data.project_type.trim(),
+          budget: data.budget.trim(),
+          timeline: data.timeline.trim(),
+          vision: data.vision.trim(),
+          status: "pending",
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Database error:", error)
+      throw error
+    }
+
+    return {
+      data: result,
+      table: "private_build_applications",
+      fallbackUsed: false,
+    }
+  } catch (error) {
+    console.error("Failed to insert private build application:", error)
     throw error
   }
 }
