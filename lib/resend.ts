@@ -418,38 +418,111 @@ The Dolo Team
 ---
 © ${new Date().getFullYear()} Dolo. All rights reserved.
       `.trim()
-    } else if (template === "private-build-application") {
-      subject = `🏗️ Premium Private Build Application - ${data.name}`
+    } else if (template === "payment-confirmation") {
+      subject = `💳 Payment Confirmed - Your ${data.projectType} Project is Starting!`
 
       html = `
-        <h2>🏗️ New Premium Private Build Application</h2>
-        <p><strong>Applicant:</strong> ${data.name}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
-        <p><strong>Company:</strong> ${data.company || "Not provided"}</p>
-        <p><strong>Budget:</strong> ${data.budget}</p>
-        <p><strong>Timeline:</strong> ${data.timeline}</p>
-        <p><strong>Project Type:</strong> ${data.projectType || "Not specified"}</p>
-        <h3>Project Vision:</h3>
-        <p>${data.vision ? data.vision.replace(/\n/g, "<br>") : "Not provided"}</p>
-        <p><strong>Referral Source:</strong> ${data.referralSource || "Not provided"}</p>
-        <p><strong>Application Date:</strong> ${new Date().toLocaleDateString()}</p>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Payment Confirmed - Dolo</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
+          
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+            <div style="background: rgba(255, 255, 255, 0.1); width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 32px;">💳</span>
+            </div>
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">Payment Confirmed!</h1>
+            <p style="color: rgba(255, 255, 255, 0.9); margin: 15px 0 0 0; font-size: 16px;">Thank you ${data.customerName || "valued customer"}!</p>
+          </div>
+          
+          <!-- Payment Details -->
+          <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+              <span style="color: #28a745;">✅</span> Payment Successfully Processed
+            </h2>
+            
+            <div style="background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); padding: 25px; border-radius: 8px; border-left: 4px solid #28a745;">
+              <div style="display: grid; gap: 15px;">
+                <div><strong style="color: #155724;">Amount Paid:</strong> <span style="color: #155724; font-size: 20px; font-weight: 600;">$${data.amount}</span></div>
+                <div><strong style="color: #155724;">Project Type:</strong> <span style="color: #155724;">${data.projectType}</span></div>
+                <div><strong style="color: #155724;">Project ID:</strong> <span style="color: #155724; font-family: monospace;">#${data.projectId}</span></div>
+                <div><strong style="color: #155724;">Payment Date:</strong> <span style="color: #155724;">${new Date().toLocaleDateString()}</span></div>
+                ${data.rushDelivery ? '<div><strong style="color: #155724;">Rush Delivery:</strong> <span style="color: #155724;">✅ Included</span></div>' : ""}
+              </div>
+            </div>
+          </div>
+          
+          <!-- What's Next -->
+          <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+              <span style="color: #ff6b35;">🚀</span> What Happens Next
+            </h2>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 3px solid #ff6b35;">
+              <ol style="color: #495057; margin: 0; padding-left: 20px; line-height: 1.8;">
+                <li><strong>Project Kickoff:</strong> Our team will contact you within 24 hours to schedule your project kickoff call</li>
+                <li><strong>Requirements Gathering:</strong> We'll discuss your specific needs and gather all necessary materials</li>
+                <li><strong>Design & Development:</strong> Our team will create your custom website according to your specifications</li>
+                <li><strong>Review & Launch:</strong> You'll review the completed website and we'll launch it live</li>
+              </ol>
+            </div>
+          </div>
+          
+          <!-- Contact Information -->
+          <div style="background: white; padding: 30px;">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+              <span style="color: #ff6b35;">📞</span> Questions? We're Here to Help
+            </h2>
+            
+            <div style="text-align: center;">
+              <a href="mailto:hello@dolobuilds.com?subject=Project%20Inquiry%20-%20${data.projectId}" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+                📧 Email Our Team
+              </a>
+              
+              <a href="https://calendly.com/dolo" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+                📅 Schedule a Call
+              </a>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background: #2c3e50; color: white; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;">
+            <p style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">Thank you for choosing Dolo!</p>
+            <p style="margin: 0; font-size: 12px; color: #bdc3c7;">
+              © ${new Date().getFullYear()} Dolo. All rights reserved.
+            </p>
+          </div>
+        </body>
+        </html>
       `
 
       text = `
-🏗️ New Premium Private Build Application
+💳 PAYMENT CONFIRMED
 
-Applicant: ${data.name}
-Email: ${data.email}
-Company: ${data.company || "Not provided"}
-Budget: ${data.budget}
-Timeline: ${data.timeline}
-Project Type: ${data.projectType || "Not specified"}
+Thank you for your payment, ${data.customerName || "valued customer"}!
 
-Project Vision:
-${data.vision || "Not provided"}
+PAYMENT DETAILS:
+Amount: $${data.amount}
+Project Type: ${data.projectType}
+Project ID: #${data.projectId}
+Payment Date: ${new Date().toLocaleDateString()}
+${data.rushDelivery ? "Rush Delivery: ✅ Included" : ""}
 
-Referral Source: ${data.referralSource || "Not provided"}
-Application Date: ${new Date().toLocaleDateString()}
+WHAT HAPPENS NEXT:
+1. Project Kickoff: Our team will contact you within 24 hours
+2. Requirements Gathering: We'll discuss your specific needs
+3. Design & Development: We'll create your custom website
+4. Review & Launch: You'll review and we'll launch it live
+
+Questions? Contact us at hello@dolobuilds.com
+
+---
+© ${new Date().getFullYear()} Dolo. All rights reserved.
       `.trim()
     } else if (template === "welcome") {
       subject = `🎉 Welcome to Dolo - Your Payment is Confirmed!`
@@ -828,6 +901,39 @@ Questions? Contact us at hello@dolobuilds.com
 
 ---
 © ${new Date().getFullYear()} Dolo. All rights reserved.
+      `.trim()
+    } else if (template === "private-build-application") {
+      subject = `🏗️ Premium Private Build Application - ${data.name}`
+
+      html = `
+        <h2>🏗️ New Premium Private Build Application</h2>
+        <p><strong>Applicant:</strong> ${data.name}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Company:</strong> ${data.company || "Not provided"}</p>
+        <p><strong>Budget:</strong> ${data.budget}</p>
+        <p><strong>Timeline:</strong> ${data.timeline}</p>
+        <p><strong>Project Type:</strong> ${data.projectType || "Not specified"}</p>
+        <h3>Project Vision:</h3>
+        <p>${data.vision ? data.vision.replace(/\n/g, "<br>") : "Not provided"}</p>
+        <p><strong>Referral Source:</strong> ${data.referralSource || "Not provided"}</p>
+        <p><strong>Application Date:</strong> ${new Date().toLocaleDateString()}</p>
+      `
+
+      text = `
+🏗️ New Premium Private Build Application
+
+Applicant: ${data.name}
+Email: ${data.email}
+Company: ${data.company || "Not provided"}
+Budget: ${data.budget}
+Timeline: ${data.timeline}
+Project Type: ${data.projectType || "Not specified"}
+
+Project Vision:
+${data.vision || "Not provided"}
+
+Referral Source: ${data.referralSource || "Not provided"}
+Application Date: ${new Date().toLocaleDateString()}
       `.trim()
     }
 

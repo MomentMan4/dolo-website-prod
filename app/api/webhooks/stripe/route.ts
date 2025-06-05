@@ -97,8 +97,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       },
     })
 
+    console.log("Attempting to send welcome email to:", customer.email)
+
     // Send welcome email with chat access
-    await sendEmail(
+    const welcomeEmailResult = await sendEmail(
       "welcome",
       customer.email,
       {
@@ -106,12 +108,23 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         projectType: session.metadata.plan,
         chatAccessToken: dbCustomer.chat_access_token,
         projectDetails: projectDetails,
+        amount: (session.amount_total || 0) / 100,
+        rushDelivery: session.metadata.rush_delivery === "true",
+        projectId: project.id,
       },
       dbCustomer.id,
     )
 
+    if (!welcomeEmailResult.success) {
+      console.error("Failed to send welcome email:", welcomeEmailResult.error)
+    } else {
+      console.log("Welcome email sent successfully:", welcomeEmailResult.messageId)
+    }
+
+    console.log("Attempting to send payment confirmation email to:", customer.email)
+
     // Send payment confirmation
-    await sendEmail(
+    const confirmationEmailResult = await sendEmail(
       "payment-confirmation",
       customer.email,
       {
@@ -124,9 +137,47 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       dbCustomer.id,
     )
 
+    if (!confirmationEmailResult.success) {
+      console.error("Failed to send payment confirmation email:", confirmationEmailResult.error)
+    } else {
+      console.log("Payment confirmation email sent successfully:", confirmationEmailResult.messageId)
+    }
+
+    // Log email attempts to database
+    // await logEmailToDatabase(
+    //   dbCustomer.id,
+    //   "welcome",
+    //   customer.email,
+    //   welcomeEmailResult.success,
+    //   welcomeEmailResult.messageId,
+    //   welcomeEmailResult.error,
+    // )
+
+    // await logEmailToDatabase(
+    //   dbCustomer.id,
+    //   "payment-confirmation",
+    //   customer.email,
+    //   confirmationEmailResult.success,
+    //   confirmationEmailResult.messageId,
+    //   confirmationEmailResult.error,
+    // )
+
     console.log("Successfully processed checkout completion for customer:", dbCustomer.id)
   } catch (error) {
     console.error("Error processing checkout completion:", error)
+    // Still attempt to send a basic email even if database operations fail
+    try {
+      await sendEmail("payment-confirmation", customer.email, {
+        customerName: customer.name || "Valued Customer",
+        projectType: session.metadata.plan || "Website Development",
+        amount: (session.amount_total || 0) / 100,
+        rushDelivery: session.metadata.rush_delivery === "true",
+        projectId: "TEMP-" + session.id,
+      })
+      console.log("Fallback email sent successfully")
+    } catch (emailError) {
+      console.error("Failed to send fallback email:", emailError)
+    }
   }
 }
 
