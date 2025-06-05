@@ -16,15 +16,15 @@ export function ContactHero() {
             Let&apos;s Connect
           </motion.h1>
 
-          <motion.p
+          <motion.div
             className="mx-auto mb-8 max-w-2xl text-base text-gray-600 sm:text-lg md:text-xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
-            Have a question, an idea, or a vision you want to bring to life? Drop us a message, we&apos;re always
-            excited to hear from brands ready to build bold.
-          </motion.p>
+            <p className="mb-2">Have a question, an idea, or a vision you want to bring to life?</p>
+            <p>Drop us a message, we&apos;re always excited to hear from brands ready to build bold.</p>
+          </motion.div>
         </div>
       </div>
 
