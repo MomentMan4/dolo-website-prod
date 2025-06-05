@@ -1,5 +1,5 @@
 import { Header } from "@/components/header"
-import { StartPage } from "@/components/start-page"
+import { StartPageWrapper } from "@/components/start-page-wrapper"
 import { Footer } from "@/components/footer"
 import { FAQsSection } from "@/components/faqs-section"
 
@@ -30,7 +30,7 @@ export default function Start() {
   return (
     <>
       <Header />
-      <StartPage />
+      <StartPageWrapper />
       <FAQsSection
         title="Build Process FAQs"
         description="Common questions about getting started with your website"
