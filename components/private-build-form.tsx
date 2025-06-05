@@ -228,17 +228,38 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
 
           <h2 className="mb-6 text-2xl font-bold text-navy md:text-3xl">Apply for a Private Build</h2>
 
+          <div className="mb-6 rounded-lg bg-orange-50 p-4 border border-orange-200">
+            <p className="text-sm text-gray-600">
+              <span className="text-red-500 font-medium">*</span> indicates required fields
+            </p>
+          </div>
+
           <form action={handleSubmit} className="space-y-6">
             <motion.div className="space-y-6" variants={formFields} initial="hidden" animate="visible">
               <div className="grid gap-6 md:grid-cols-2">
                 <motion.div variants={formField}>
-                  <Label htmlFor="name">Full Name *</Label>
-                  <Input id="name" name="name" className="mt-1" required />
+                  <Label htmlFor="name">
+                    Full Name <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    className="mt-1 border-orange-300 focus:border-orange focus:ring-orange bg-orange-50/20"
+                    required
+                  />
                 </motion.div>
 
                 <motion.div variants={formField}>
-                  <Label htmlFor="email">Email Address *</Label>
-                  <Input id="email" name="email" type="email" className="mt-1" required />
+                  <Label htmlFor="email">
+                    Email Address <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    className="mt-1 border-orange-300 focus:border-orange focus:ring-orange bg-orange-50/20"
+                    required
+                  />
                 </motion.div>
               </div>
 
@@ -248,7 +269,9 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
               </motion.div>
 
               <motion.div variants={formField}>
-                <Label htmlFor="projectType">What type of project are you looking to build? *</Label>
+                <Label htmlFor="projectType">
+                  What type of project are you looking to build? <span className="text-red-500">*</span>
+                </Label>
                 <select
                   id="projectType"
                   name="projectType"
@@ -269,13 +292,22 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
               </motion.div>
 
               <motion.div variants={formField}>
-                <Label htmlFor="vision">Describe your project vision and goals *</Label>
-                <Textarea id="vision" name="vision" className="mt-1 min-h-[120px]" required />
+                <Label htmlFor="vision">
+                  Describe your project vision and goals <span className="text-red-500">*</span>
+                </Label>
+                <Textarea
+                  id="vision"
+                  name="vision"
+                  className="mt-1 min-h-[120px] border-orange-300 focus:border-orange focus:ring-orange bg-orange-50/20"
+                  required
+                />
               </motion.div>
 
               <div className="grid gap-6 md:grid-cols-2">
                 <motion.div variants={formField}>
-                  <Label htmlFor="budget">Budget Range *</Label>
+                  <Label htmlFor="budget">
+                    Budget Range <span className="text-red-500">*</span>
+                  </Label>
                   <select
                     id="budget"
                     name="budget"
@@ -294,7 +326,9 @@ export function PrivateBuildForm({ isOpen, onClose }: PrivateBuildFormProps) {
                 </motion.div>
 
                 <motion.div variants={formField}>
-                  <Label htmlFor="timeline">Desired Timeline *</Label>
+                  <Label htmlFor="timeline">
+                    Desired Timeline <span className="text-red-500">*</span>
+                  </Label>
                   <select
                     id="timeline"
                     name="timeline"

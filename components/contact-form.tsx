@@ -177,29 +177,22 @@ export function ContactForm() {
 
     try {
       // Client-side validation first
-      // const clientErrors = validateClientSide()
-      // if (clientErrors.length > 0) {
-      //   console.error(`[${submissionId}] Client-side validation failed:`, clientErrors)
+      const clientErrors = validateClientSide()
+      if (clientErrors.length > 0) {
+        console.error(`[${submissionId}] Client-side validation failed:`, clientErrors)
 
-      //   toast({
-      //     title: "Please fix the following errors:",
-      //     description: clientErrors.join(", "),
-      //     variant: "destructive",
-      //   })
+        toast({
+          title: "Please fix the following errors:",
+          description: clientErrors.join(", "),
+          variant: "destructive",
+        })
 
-      //   setLastSubmissionResult({
-      //     success: false,
-      //     error: "Client-side validation failed",
-      //     details: { errors: clientErrors },
-      //   })
+        setLastSubmissionResult({
+          success: false,
+          error: "Client-side validation failed",
+          details: { errors: clientErrors },
+        })
 
-      //   setIsSubmitting(false)
-      //   return
-      // }
-
-      const isValid = validateForm()
-
-      if (!isValid) {
         setIsSubmitting(false)
         return
       }
@@ -364,6 +357,13 @@ export function ContactForm() {
               We'd love to hear about your project and how we can help bring your vision to life.
             </p>
           </motion.div>
+
+          {/* Add this right after the form title and description */}
+          <div className="mb-6 rounded-lg bg-gray-50 p-4 border border-gray-200">
+            <p className="text-sm text-gray-600">
+              <span className="text-red-500 font-medium">*</span> indicates required fields
+            </p>
+          </div>
 
           {/* Error Display - simplified like quiz */}
           {lastSubmissionResult && !lastSubmissionResult.success && (

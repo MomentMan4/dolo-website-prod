@@ -672,6 +672,12 @@ export function StartPage() {
                 >
                   <div className="rounded-xl bg-white p-6 shadow-md">
                     <h2 className="mb-6 text-xl font-bold text-navy">Tell Us About Your Project</h2>
+                    <div className="mb-6 rounded-lg bg-orange-50 p-4 border border-orange-200">
+                      <p className="text-sm text-gray-600">
+                        <span className="text-red-500 font-medium">*</span> indicates required fields. Required fields
+                        have a subtle orange background to help you identify them.
+                      </p>
+                    </div>
 
                     <div className="space-y-6">
                       <motion.div
@@ -679,8 +685,15 @@ export function StartPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                       >
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input id="name" name="name" className="mt-1" required />
+                        <Label htmlFor="name">
+                          Full Name <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="name"
+                          name="name"
+                          className="mt-1 border-orange-300 focus:border-orange focus:ring-orange bg-orange-50/20"
+                          required
+                        />
                       </motion.div>
 
                       <motion.div
@@ -688,8 +701,16 @@ export function StartPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
                       >
-                        <Label htmlFor="email">Email Address</Label>
-                        <Input id="email" name="email" type="email" className="mt-1" required />
+                        <Label htmlFor="email">
+                          Email Address <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          className="mt-1 border-orange-300 focus:border-orange focus:ring-orange bg-orange-50/20"
+                          required
+                        />
                       </motion.div>
 
                       {/* New field: Existing website */}
@@ -699,7 +720,7 @@ export function StartPage() {
                         transition={{ delay: 0.6 }}
                       >
                         <Label htmlFor="existing-website">
-                          Do you have an existing website? <span className="text-coral">*</span>
+                          Do you have an existing website? <span className="text-red-500">*</span>
                         </Label>
                         <div className="mt-2 flex space-x-4">
                           <label className="flex items-center">
@@ -759,7 +780,7 @@ export function StartPage() {
                         transition={{ delay: 0.7 }}
                       >
                         <Label htmlFor="hosting-domain">
-                          Do you have existing domain & hosting? <span className="text-coral">*</span>
+                          Do you have existing domain & hosting? <span className="text-red-500">*</span>
                         </Label>
                         <div className="mt-2 flex space-x-4">
                           <label className="flex items-center">
@@ -794,7 +815,7 @@ export function StartPage() {
                         transition={{ delay: 0.8 }}
                       >
                         <Label htmlFor="has-logo">
-                          Do you have a logo? <span className="text-coral">*</span>
+                          Do you have a logo? <span className="text-red-500">*</span>
                         </Label>
                         <div className="mt-2 flex space-x-4">
                           <label className="flex items-center">
@@ -854,7 +875,7 @@ export function StartPage() {
                         transition={{ delay: 0.9 }}
                       >
                         <Label>
-                          What is the purpose of the website? <span className="text-coral">*</span>
+                          What is the purpose of the website? <span className="text-red-500">*</span>
                         </Label>
                         <div className="mt-2 space-y-2">
                           <label className="flex items-center">
@@ -917,8 +938,15 @@ export function StartPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 1.0 }}
                       >
-                        <Label htmlFor="target-audience">Who is the target audience for the website?</Label>
-                        <Input id="target-audience" name="targetAudience" className="mt-1" required />
+                        <Label htmlFor="target-audience">
+                          Who is the target audience for the website? <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="target-audience"
+                          name="targetAudience"
+                          className="mt-1 border-orange-300 focus:border-orange focus:ring-orange bg-orange-50/20"
+                          required
+                        />
                       </motion.div>
 
                       {/* Main Products/Services */}
@@ -928,9 +956,15 @@ export function StartPage() {
                         transition={{ delay: 1.1 }}
                       >
                         <Label htmlFor="products-services">
-                          What are the main products or services that the website will be promoting?
+                          What are the main products or services that the website will be promoting?{" "}
+                          <span className="text-red-500">*</span>
                         </Label>
-                        <Textarea id="products-services" name="productsServices" className="mt-1" required />
+                        <Textarea
+                          id="products-services"
+                          name="productsServices"
+                          className="mt-1 border-orange-300 focus:border-orange focus:ring-orange bg-orange-50/20"
+                          required
+                        />
                       </motion.div>
 
                       {/* Branding Guidelines */}
