@@ -40,8 +40,10 @@ export interface StartFormData {
   yearlyMaintenance: boolean
 }
 
-// AGGRESSIVE FIX: Return the redirect URL instead of redirecting directly
-export async function handleStartFormSubmission(formData: FormData): Promise<{ redirectUrl: string }> {
+// Return the URL instead of redirecting directly
+export async function handleStartFormSubmission(
+  formData: FormData,
+): Promise<{ success: boolean; redirectUrl?: string; error?: string }> {
   try {
     console.log("=== START FORM SUBMISSION PROCESSING ===")
 
@@ -61,16 +63,16 @@ export async function handleStartFormSubmission(formData: FormData): Promise<{ r
     // Validate required fields
     const validationError = validateRequiredFields(customerData, ["name", "email"])
     if (validationError) {
-      throw new Error(validationError)
+      return { success: false, error: validationError }
     }
 
     if (!selectedPlan) {
-      throw new Error("Plan selection is required")
+      return { success: false, error: "Plan selection is required" }
     }
 
     // Validate email format
     if (!validateEmail(customerData.email)) {
-      throw new Error("Invalid email format")
+      return { success: false, error: "Invalid email format" }
     }
 
     // Extract add-ons
@@ -81,7 +83,10 @@ export async function handleStartFormSubmission(formData: FormData): Promise<{ r
       privacy: formData.get("privacy") === "true",
     }
 
+    const yearlyMaintenance = formData.get("yearlyMaintenance") === "true"
+
     console.log("Add-ons:", addOns)
+    console.log("Yearly maintenance:", yearlyMaintenance)
 
     // Create project details object
     const projectDetails = {
@@ -102,7 +107,7 @@ export async function handleStartFormSubmission(formData: FormData): Promise<{ r
       competitors: (formData.get("competitors") as string) || undefined,
       updates: (formData.get("updates") as string) || undefined,
       keywords: (formData.get("keywords") as string) || undefined,
-      yearlyMaintenance: formData.get("yearlyMaintenance") === "true",
+      yearlyMaintenance: yearlyMaintenance,
     }
 
     console.log("Project details extracted")
@@ -130,32 +135,40 @@ Rush Delivery: ${rushDelivery}`,
 
     console.log("=== CREATING STRIPE CHECKOUT SESSION ===")
 
+    // Filter add-ons to only include selected ones
+    const selectedAddOns = Object.entries(addOns)
+      .filter(([_, enabled]) => enabled)
+      .map(([key, _]) => key)
+
+    console.log("Selected add-ons for Stripe:", selectedAddOns)
+
     // Create Stripe checkout session
     const session = await createCheckoutSession(selectedPlan, customerData, {
       rushDelivery,
-      addOns: Object.entries(addOns)
-        .filter(([_, enabled]) => enabled)
-        .map(([key, _]) => key),
+      addOns: selectedAddOns,
       successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/start`,
       projectDetails,
     })
 
     if (!session.url) {
-      throw new Error("Failed to create checkout session - no URL returned")
+      return { success: false, error: "Failed to create checkout session - no URL returned" }
     }
 
     console.log("Stripe checkout session created successfully")
-    console.log("Redirect URL:", session.url)
+    console.log("Returning redirect URL:", session.url)
 
-    // AGGRESSIVE FIX: Return the URL instead of redirecting
-    return { redirectUrl: session.url }
-  } catch (error) {
+    // Return the URL instead of redirecting
+    return { success: true, redirectUrl: session.url }
+  } catch (error: any) {
     console.error("=== ERROR IN START FORM SUBMISSION ===")
     console.error("Error details:", error)
     console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace")
 
-    // Re-throw the error to be handled by the client
-    throw error
+    // Return error information
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "An unexpected error occurred",
+    }
   }
 }

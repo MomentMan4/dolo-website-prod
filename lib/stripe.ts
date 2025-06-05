@@ -158,9 +158,17 @@ export async function createCheckoutSession(
     },
   })
 
+  // Check if maintenance is included and if it's yearly
+  const hasMaintenance = options.addOns?.includes("maintenance") || false
+  const isYearlyMaintenance = options.projectDetails?.yearlyMaintenance === true
+
+  // Determine if we need subscription mode
+  const needsSubscription = hasMaintenance && !isYearlyMaintenance
+
+  // Create session parameters
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     customer: customer.id,
-    mode: "payment",
+    mode: needsSubscription ? "subscription" : "payment", // Use subscription mode if needed
     success_url: options.successUrl,
     cancel_url: options.cancelUrl,
     metadata: {
@@ -169,6 +177,7 @@ export async function createCheckoutSession(
       customer_email: customerData.email,
       rush_delivery: options.rushDelivery ? "true" : "false",
       project_details: JSON.stringify(options.projectDetails || {}),
+      add_ons: JSON.stringify(options.addOns || []),
     },
     line_items: [],
   }
@@ -197,15 +206,13 @@ export async function createCheckoutSession(
 
     // Add add-ons
     if (options.addOns) {
+      // First, add all non-maintenance add-ons
       for (const addOn of options.addOns) {
+        if (addOn === "maintenance") continue // Handle maintenance separately
+
         let addOnPriceId = ""
 
         switch (addOn) {
-          case "maintenance":
-            // Determine if yearly or monthly based on project details
-            const isYearly = options.projectDetails?.yearlyMaintenance
-            addOnPriceId = isYearly ? STRIPE_PRICES.maintenance.annual : STRIPE_PRICES.maintenance.monthly
-            break
           case "googleBusiness":
             addOnPriceId = STRIPE_PRICES.googleBusiness.regular
             break
@@ -220,6 +227,31 @@ export async function createCheckoutSession(
         if (addOnPriceId) {
           sessionParams.line_items!.push({
             price: addOnPriceId,
+            quantity: 1,
+          })
+        }
+      }
+
+      // Now handle maintenance separately
+      if (hasMaintenance) {
+        if (needsSubscription) {
+          // Monthly maintenance as a subscription
+          sessionParams.line_items!.push({
+            price: STRIPE_PRICES.maintenance.monthly,
+            quantity: 1,
+          })
+        } else if (isYearlyMaintenance) {
+          // Yearly maintenance as a one-time payment
+          // Create a custom price for the yearly amount
+          sessionParams.line_items!.push({
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: "Website Maintenance - Annual Plan",
+                description: "12 months of website maintenance (10% discount applied)",
+              },
+              unit_amount: Math.round(49.99 * 12 * 0.9 * 100), // Convert to cents with 10% discount
+            },
             quantity: 1,
           })
         }

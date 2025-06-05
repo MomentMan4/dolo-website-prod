@@ -109,7 +109,7 @@ export function StartPage() {
     })
   }
 
-  // AGGRESSIVE FIX: Handle form submission with direct redirect
+  // Handle form submission with proper error handling
   const handleSubmit = async (formData: FormData) => {
     if (!selectedPlan) {
       toast({
@@ -168,26 +168,23 @@ export function StartPage() {
 
       console.log("Calling server action...")
 
-      // AGGRESSIVE FIX: Get redirect URL from server action instead of handling redirect
+      // Call the server action and get the response
       const result = await handleStartFormSubmission(formData)
 
-      console.log("Server action completed successfully")
-      console.log("Redirect URL received:", result.redirectUrl)
+      console.log("Server action response:", result)
 
-      // AGGRESSIVE FIX: Use window.location.href for immediate redirect
-      if (result.redirectUrl) {
-        console.log("Redirecting to Stripe checkout...")
+      if (result.success && result.redirectUrl) {
+        // Successful response with redirect URL
+        console.log("Redirecting to Stripe checkout:", result.redirectUrl)
         window.location.href = result.redirectUrl
-        // Don't reset isSubmitting - let the redirect happen
         return
       } else {
-        throw new Error("No redirect URL received from server")
+        // Error response
+        throw new Error(result.error || "Unknown error occurred")
       }
     } catch (error: any) {
       console.error("=== START FORM SUBMISSION ERROR ===")
       console.error("Error details:", error)
-      console.error("Error type:", typeof error)
-      console.error("Error constructor:", error?.constructor?.name)
 
       // Show user-friendly error message
       toast({
