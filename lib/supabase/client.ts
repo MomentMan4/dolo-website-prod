@@ -1,4 +1,4 @@
-import { createClient as createSupabaseClient } from "@supabase/supabase-js"
+import { createClient } from "@supabase/supabase-js"
 
 export type Database = {
   public: {
@@ -187,67 +187,6 @@ export type Database = {
           sent_at?: string
         }
       }
-      quiz_results: {
-        Row: {
-          id: string
-          email: string
-          plan: string
-          answers: Record<string, any>
-          consent: boolean
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          email: string
-          plan: string
-          answers: Record<string, any>
-          consent: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          email?: string
-          plan?: string
-          answers?: Record<string, any>
-          consent?: boolean
-          created_at?: string
-        }
-      }
-      private_build_applications: {
-        Row: {
-          id: string
-          name: string
-          email: string
-          company: string | null
-          project_description: string
-          budget_range: string
-          timeline: string
-          status: "new" | "contacted" | "approved" | "rejected"
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          email: string
-          company?: string | null
-          project_description: string
-          budget_range: string
-          timeline: string
-          status?: "new" | "contacted" | "approved" | "rejected"
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          email?: string
-          company?: string | null
-          project_description?: string
-          budget_range?: string
-          timeline?: string
-          status?: "new" | "contacted" | "approved" | "rejected"
-          created_at?: string
-        }
-      }
     }
   }
 }
@@ -266,38 +205,27 @@ if (!supabaseAnonKey && !supabaseServiceKey) {
   console.warn("Missing Supabase API key. Some features may not work correctly.")
 }
 
-// Create a mock client for when Supabase is not configured
-const createMockClient = () => ({
-  from: () => ({
-    select: () => Promise.resolve({ data: [], error: null }),
-    insert: () => Promise.resolve({ data: null, error: null }),
-    update: () => Promise.resolve({ data: null, error: null }),
-    delete: () => Promise.resolve({ data: null, error: null }),
-    eq: function () {
-      return this
-    },
-    order: function () {
-      return this
-    },
-    single: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
-  }),
-  auth: {
-    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-    signIn: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
-    signOut: () => Promise.resolve({ error: null }),
-    signInWithPassword: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
-  },
-})
-
-// Export the createClient function that was missing
-export function createClient() {
+// Create client-side Supabase client (for browser)
+export function createBrowserSupabaseClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     console.warn("Missing Supabase configuration for browser client")
-    return createMockClient() as any
+    // Return a mock client to prevent crashes
+    return {
+      from: () => ({
+        select: () => Promise.resolve({ data: [], error: null }),
+        insert: () => Promise.resolve({ data: null, error: null }),
+        update: () => Promise.resolve({ data: null, error: null }),
+        delete: () => Promise.resolve({ data: null, error: null }),
+      }),
+      auth: {
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+        signIn: () => Promise.resolve({ data: null, error: null }),
+        signOut: () => Promise.resolve({ error: null }),
+      },
+    } as any
   }
 
-  return createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey, {
+  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
@@ -305,16 +233,11 @@ export function createClient() {
   })
 }
 
-// Create client-side Supabase client (for browser)
-export function createBrowserSupabaseClient() {
-  return createClient()
-}
-
 // Create server-side Supabase client (for API routes)
 export function createRouteHandlerSupabaseClient() {
   if (!supabaseUrl) {
     console.warn("Missing Supabase URL for server client")
-    return createMockClient() as any
+    return null
   }
 
   // Prefer service role key for server operations, fallback to anon key
@@ -322,33 +245,10 @@ export function createRouteHandlerSupabaseClient() {
 
   if (!apiKey) {
     console.warn("Missing API key for server client")
-    return createMockClient() as any
+    return null
   }
 
-  return createSupabaseClient<Database>(supabaseUrl, apiKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  })
-}
-
-// Add the missing createServerSupabaseClient function
-export function createServerSupabaseClient() {
-  if (!supabaseUrl) {
-    console.warn("Missing Supabase URL for server client")
-    return createMockClient() as any
-  }
-
-  // Prefer service role key for server operations, fallback to anon key
-  const apiKey = supabaseServiceKey || supabaseAnonKey
-
-  if (!apiKey) {
-    console.warn("Missing API key for server client")
-    return createMockClient() as any
-  }
-
-  return createSupabaseClient<Database>(supabaseUrl, apiKey, {
+  return createClient<Database>(supabaseUrl, apiKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
@@ -360,10 +260,10 @@ export function createServerSupabaseClient() {
 export function createAdminSupabaseClient() {
   if (!supabaseUrl || !supabaseServiceKey) {
     console.warn("Missing configuration for admin client")
-    return createMockClient() as any
+    return null
   }
 
-  return createSupabaseClient<Database>(supabaseUrl, supabaseServiceKey, {
+  return createClient<Database>(supabaseUrl, supabaseServiceKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
@@ -371,8 +271,8 @@ export function createAdminSupabaseClient() {
   })
 }
 
-// Export a pre-initialized client for client-side use
-export const supabase = createClient()
+// Default export for backward compatibility
+export const supabase = createBrowserSupabaseClient()
 
 // Export configuration check function
 export function checkSupabaseConfig() {
@@ -386,6 +286,3 @@ export function checkSupabaseConfig() {
     serviceKeyLength: supabaseServiceKey?.length || 0,
   }
 }
-
-// Default export for backward compatibility
-export default supabase

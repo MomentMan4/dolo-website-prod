@@ -19,8 +19,6 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
-
-  // Create Supabase client instance
   const supabase = createClient()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -29,23 +27,15 @@ export default function AdminLoginPage() {
     setError("")
 
     try {
-      // Validate inputs
-      if (!email || !password) {
-        setError("Please enter both email and password")
-        setIsLoading(false)
-        return
-      }
-
       // First, check if user exists in admin_users table
-      const { data: adminUser, error: userError } = await supabase
+      const { data: adminUser } = await supabase
         .from("admin_users")
         .select("*")
         .eq("email", email)
         .eq("is_active", true)
         .single()
 
-      if (userError || !adminUser) {
-        console.error("Admin user lookup error:", userError)
+      if (!adminUser) {
         setError("Invalid credentials or account not authorized")
         setIsLoading(false)
         return
@@ -58,36 +48,19 @@ export default function AdminLoginPage() {
       })
 
       if (authError) {
-        console.error("Authentication error:", authError)
-        setError(authError.message || "Authentication failed")
+        setError(authError.message)
         setIsLoading(false)
         return
       }
 
-      if (!data.user) {
-        setError("Authentication failed - no user returned")
-        setIsLoading(false)
-        return
-      }
-
-      // Update last login timestamp
-      const { error: updateError } = await supabase
-        .from("admin_users")
-        .update({ last_login: new Date().toISOString() })
-        .eq("id", adminUser.id)
-
-      if (updateError) {
-        console.warn("Failed to update last login:", updateError)
-        // Don't fail the login for this
-      }
+      // Update last login
+      await supabase.from("admin_users").update({ last_login: new Date().toISOString() }).eq("id", adminUser.id)
 
       // Redirect to dashboard
       router.push("/admin/dashboard")
       router.refresh()
     } catch (error) {
-      console.error("Unexpected login error:", error)
-      setError("An unexpected error occurred. Please try again.")
-    } finally {
+      setError("An unexpected error occurred")
       setIsLoading(false)
     }
   }
@@ -130,7 +103,6 @@ export default function AdminLoginPage() {
                   className="pl-10 h-12 border-gray-200 focus:border-orange focus:ring-orange"
                   placeholder="admin@dolo.dev"
                   required
-                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -149,13 +121,11 @@ export default function AdminLoginPage() {
                   className="pl-10 pr-10 h-12 border-gray-200 focus:border-orange focus:ring-orange"
                   placeholder="Enter your password"
                   required
-                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
-                  disabled={isLoading}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -165,7 +135,7 @@ export default function AdminLoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-orange hover:bg-orange-600 text-white font-medium disabled:opacity-50"
+              className="w-full h-12 bg-orange hover:bg-orange-600 text-white font-medium"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
