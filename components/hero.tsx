@@ -86,8 +86,8 @@ export function Hero() {
           >
             <div className="relative h-[250px] w-full overflow-hidden sm:h-[300px] md:h-[350px] lg:h-[400px]">
               <Image
-                src="/builder-ecommerce.jpeg"
-                alt="E-commerce website builder"
+                src="/dolo-devices-v10-recreation.png"
+                alt="Modern devices arrangement showing desktop monitor in center, tablet on left, laptop on right, and smartphone in front, all displaying responsive Dolo websites"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
