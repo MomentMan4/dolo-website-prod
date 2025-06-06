@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 
 export function ContactHero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 py-16 md:py-20 lg:py-28">
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#003B6F]/5 via-[#007196]/5 to-[#FF5073]/5 py-16 md:py-20 lg:py-28">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mx-auto max-w-3xl text-center">
           <motion.h1
@@ -28,9 +28,14 @@ export function ContactHero() {
         </div>
       </div>
 
-      {/* Background Elements */}
-      <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-[#007196]/10"></div>
-      <div className="absolute -right-20 top-20 h-72 w-72 rounded-full bg-[#FF5073]/10"></div>
+      {/* Background Elements - Updated to match About page */}
+      <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-[#FF6B35]/10"></div>
+      <div className="absolute -right-20 top-20 h-72 w-72 rounded-full bg-[#007196]/10"></div>
+      <div className="absolute bottom-40 right-40 h-48 w-48 rounded-full bg-[#FF5073]/10"></div>
+      <div className="absolute left-40 top-40 h-56 w-56 rounded-full bg-[#003B6F]/10"></div>
+
+      {/* Additional gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#003B6F]/5 via-[#FF6B35]/5 to-[#FF5073]/5 pointer-events-none"></div>
     </section>
   )
 }

@@ -248,7 +248,7 @@ export function StartPage() {
 
   return (
     <TooltipProvider>
-      <section className="bg-gradient-to-b from-white to-gray-50 py-16 md:py-20 lg:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#003B6F]/5 via-[#007196]/5 to-[#FF5073]/5 py-16 md:py-20 lg:py-24">
         <div className="container mx-auto px-4 md:px-6">
           <motion.div className="mb-12 text-center" initial="hidden" animate="show" variants={fadeIn}>
             <h1 className="mb-4 text-3xl font-bold text-navy md:text-4xl lg:text-5xl">
@@ -258,7 +258,20 @@ export function StartPage() {
               Select a plan that fits your needs, choose any add-ons, and tell us a bit about your project.
             </p>
           </motion.div>
+        </div>
 
+        {/* Background Elements - Added to match About page */}
+        <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-[#FF6B35]/10"></div>
+        <div className="absolute -right-20 top-20 h-72 w-72 rounded-full bg-[#007196]/10"></div>
+        <div className="absolute bottom-40 right-40 h-48 w-48 rounded-full bg-[#FF5073]/10"></div>
+        <div className="absolute left-40 top-40 h-56 w-56 rounded-full bg-[#003B6F]/10"></div>
+
+        {/* Additional gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#003B6F]/5 via-[#FF6B35]/5 to-[#FF5073]/5 pointer-events-none"></div>
+      </section>
+
+      <section className="bg-white py-12 md:py-16 lg:py-20">
+        <div className="container mx-auto px-4 md:px-6">
           <form action={handleSubmit}>
             {/* Plan Selection */}
             <div className="mb-12">
