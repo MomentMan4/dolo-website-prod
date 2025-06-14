@@ -3,6 +3,7 @@
 import { createCheckoutSession } from "@/lib/stripe"
 import type { PlanType } from "@/lib/stripe"
 import { validateEmail, validateRequiredFields } from "@/lib/form-utils"
+import { getPlanDetails } from "@/lib/stripe"
 
 export interface StartFormData {
   // Customer Information
@@ -142,6 +143,15 @@ Rush Delivery: ${rushDelivery}`,
 
     console.log("Selected add-ons for Stripe:", selectedAddOns)
 
+    // Calculate rush delivery fee
+    let rushDeliveryFee = 0
+    if (rushDelivery) {
+      const planDetails = getPlanDetails(selectedPlan)
+      if (planDetails) {
+        rushDeliveryFee = planDetails.price * 0.2
+      }
+    }
+
     // Create Stripe checkout session
     const session = await createCheckoutSession(selectedPlan, customerData, {
       rushDelivery,
@@ -149,6 +159,7 @@ Rush Delivery: ${rushDelivery}`,
       successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/start`,
       projectDetails,
+      rushDeliveryFee,
     })
 
     if (!session.url) {

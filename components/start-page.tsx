@@ -26,6 +26,7 @@ export function StartPage() {
     accessibility: false,
     privacy: false,
   })
+  const [driveLink, setDriveLink] = useState("")
 
   // Form state
   const [hasExistingWebsite, setHasExistingWebsite] = useState<boolean | null>(null)
@@ -40,6 +41,74 @@ export function StartPage() {
   })
   const [otherPurpose, setOtherPurpose] = useState("")
   const [brandingGuidelines, setBrandingGuidelines] = useState<boolean | null>(null)
+
+  // Form caching functionality
+  const CACHE_KEY = "start-form-data"
+
+  // Load cached data on component mount
+  useEffect(() => {
+    const cachedData = localStorage.getItem(CACHE_KEY)
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData)
+        // Restore form state from cache
+        if (parsed.selectedPlan) setSelectedPlan(parsed.selectedPlan)
+        if (parsed.rushDelivery !== undefined) setRushDelivery(parsed.rushDelivery)
+        if (parsed.yearlyMaintenance !== undefined) setYearlyMaintenance(parsed.yearlyMaintenance)
+        if (parsed.addOns) setAddOns(parsed.addOns)
+        if (parsed.hasExistingWebsite !== undefined) setHasExistingWebsite(parsed.hasExistingWebsite)
+        if (parsed.existingWebsiteUrl) setExistingWebsiteUrl(parsed.existingWebsiteUrl)
+        if (parsed.hasHostingDomain !== undefined) setHasHostingDomain(parsed.hasHostingDomain)
+        if (parsed.hasLogo !== undefined) setHasLogo(parsed.hasLogo)
+        if (parsed.logoLink) setLogoLink(parsed.logoLink)
+        if (parsed.websitePurpose) setWebsitePurpose(parsed.websitePurpose)
+        if (parsed.otherPurpose) setOtherPurpose(parsed.otherPurpose)
+        if (parsed.brandingGuidelines !== undefined) setBrandingGuidelines(parsed.brandingGuidelines)
+        if (parsed.driveLink) setDriveLink(parsed.driveLink)
+      } catch (error) {
+        console.warn("Failed to load cached form data:", error)
+      }
+    }
+  }, [])
+
+  // Cache form data whenever state changes
+  useEffect(() => {
+    const formData = {
+      selectedPlan,
+      rushDelivery,
+      yearlyMaintenance,
+      addOns,
+      hasExistingWebsite,
+      existingWebsiteUrl,
+      hasHostingDomain,
+      hasLogo,
+      logoLink,
+      websitePurpose,
+      otherPurpose,
+      brandingGuidelines,
+      driveLink,
+    }
+    localStorage.setItem(CACHE_KEY, JSON.stringify(formData))
+  }, [
+    selectedPlan,
+    rushDelivery,
+    yearlyMaintenance,
+    addOns,
+    hasExistingWebsite,
+    existingWebsiteUrl,
+    hasHostingDomain,
+    hasLogo,
+    logoLink,
+    websitePurpose,
+    otherPurpose,
+    brandingGuidelines,
+    driveLink,
+  ])
+
+  // Clear cache on successful submission
+  const clearFormCache = () => {
+    localStorage.removeItem(CACHE_KEY)
+  }
 
   // Form submission state
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -82,7 +151,9 @@ export function StartPage() {
 
     // Add rush delivery
     if (rushDelivery && selectedPlan) {
-      oneTimePrice += oneTimePrice * 0.2
+      const basePlanPrice =
+        selectedPlan === "essential" ? plans.essential : selectedPlan === "pro" ? plans.pro : plans.premier
+      oneTimePrice += basePlanPrice * 0.2
     }
 
     // Add add-ons
@@ -186,6 +257,8 @@ export function StartPage() {
       console.log("Server action response:", result)
 
       if (result.success && result.redirectUrl) {
+        // Clear form cache on successful submission
+        clearFormCache()
         // Successful response with redirect URL
         console.log("Redirecting to Stripe checkout:", result.redirectUrl)
         window.location.href = result.redirectUrl
@@ -774,8 +847,8 @@ export function StartPage() {
                               <Input
                                 id="website-url"
                                 name="existingWebsiteUrl"
-                                type="url"
-                                placeholder="https://example.com"
+                                type="text"
+                                placeholder="example.com or https://example.com"
                                 value={existingWebsiteUrl}
                                 onChange={(e) => setExistingWebsiteUrl(e.target.value)}
                                 className="mt-1"
@@ -869,8 +942,8 @@ export function StartPage() {
                               <Input
                                 id="logo-link"
                                 name="logoLink"
-                                type="url"
-                                placeholder="https://drive.google.com/..."
+                                type="text"
+                                placeholder="drive.google.com/... or https://drive.google.com/..."
                                 value={logoLink}
                                 onChange={(e) => setLogoLink(e.target.value)}
                                 className="mt-1"
@@ -1053,26 +1126,40 @@ export function StartPage() {
                         <Textarea id="keywords" name="keywords" className="mt-1" />
                       </motion.div>
 
-                      {/* Reference Files */}
+                      {/* Google Drive Link */}
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 1.6 }}
                       >
                         <div className="flex items-center">
-                          <Label htmlFor="files">Upload reference files (optional)</Label>
+                          <Label htmlFor="drive-link">Share reference files via Google Drive (optional)</Label>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Info className="ml-2 h-4 w-4 cursor-pointer text-gray-400" />
                             </TooltipTrigger>
                             <TooltipContent side="top">
-                              <p className="w-[200px] text-sm">
-                                We recommend you share a link to your shared drive folder.
+                              <p className="w-[250px] text-sm">
+                                Create a shared Google Drive folder with your reference files (logos, images, documents)
+                                and paste the shareable link here. Make sure the link allows "Anyone with the link" to
+                                view.
                               </p>
                             </TooltipContent>
                           </Tooltip>
                         </div>
-                        <Input id="files" name="files" type="file" className="mt-1" multiple />
+                        <Input
+                          id="drive-link"
+                          name="driveLink"
+                          type="text"
+                          placeholder="https://drive.google.com/drive/folders/..."
+                          value={driveLink}
+                          onChange={(e) => setDriveLink(e.target.value)}
+                          className="mt-1"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">
+                          Share a Google Drive folder link containing your reference materials, logos, or inspiration
+                          files.
+                        </p>
                       </motion.div>
 
                       <motion.div

@@ -1,10 +1,6 @@
 import Stripe from "stripe"
 import { createRouteHandlerSupabaseClient } from "@/lib/supabase/client"
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
-})
-
 // Stripe Price IDs (Test Environment)
 export const STRIPE_PRICES = {
   essential: {
@@ -47,6 +43,20 @@ export function getPriceId(plan: PlanType, type: PriceType = "regular"): string 
       return ""
     default:
       return STRIPE_PRICES.essential.regular
+  }
+}
+
+export function getPlanDetails(plan: PlanType) {
+  const planPrices = {
+    essential: 499.99,
+    pro: 849.99,
+    premier: 1199.99,
+    "private-build": 0,
+  }
+
+  return {
+    price: planPrices[plan] || 0,
+    name: plan.charAt(0).toUpperCase() + plan.slice(1),
   }
 }
 
@@ -123,6 +133,10 @@ function generateUniqueToken(): string {
   return `chat_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
 }
 
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2023-10-16",
+})
+
 export async function createCheckoutSession(
   plan: PlanType,
   customerData: {
@@ -137,6 +151,7 @@ export async function createCheckoutSession(
     successUrl: string
     cancelUrl: string
     projectDetails?: Record<string, any>
+    rushDeliveryFee?: number
   },
 ) {
   const priceId = getPriceId(plan, options.rushDelivery ? "rush" : "regular")
@@ -171,6 +186,7 @@ export async function createCheckoutSession(
     mode: needsSubscription ? "subscription" : "payment", // Use subscription mode if needed
     success_url: options.successUrl,
     cancel_url: options.cancelUrl,
+    submit_type: "pay", // This ensures "Pay" instead of "Subscribe"
     metadata: {
       plan: plan,
       customer_name: customerData.name,
