@@ -678,6 +678,43 @@ Questions? Contact us at hello@dolobuilds.com
       ${
         data.chatAccessToken
           ? `
+<!-- Customer Portal Access -->
+<div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
+  <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+    <span style="color: #ff6b35;">💬</span> Priority Customer Portal
+  </h2>
+  
+  <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+    <p style="color: #1565c0; margin-bottom: 15px; font-size: 16px; line-height: 1.6;">
+      You now have exclusive access to our priority customer support portal where you can chat directly with our team.
+    </p>
+    
+    <div style="text-align: center; margin: 20px 0;">
+      <a href="${process.env.NEXT_PUBLIC_SITE_URL}/customer-portal/${data.chatAccessToken}" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px;">
+        🚀 Access Customer Portal
+      </a>
+    </div>
+    
+    <div style="background: white; padding: 15px; border-radius: 6px; margin-top: 15px;">
+      <p style="margin: 0; color: #2c3e50; font-size: 14px;">
+        <strong>Your Access Link:</strong><br>
+        <span style="font-family: monospace; color: #666; font-size: 12px; word-break: break-all;">
+          ${process.env.NEXT_PUBLIC_SITE_URL}/customer-portal/${data.chatAccessToken}
+        </span>
+      </p>
+      <p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">
+        Bookmark this link for easy access to priority support. Access expires in 6 months.
+      </p>
+    </div>
+  </div>
+</div>
+`
+          : ""
+      }
+      
+      ${
+        data.chatAccessToken
+          ? `
       <!-- Chat Access -->
       <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
         <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
@@ -793,6 +830,20 @@ WHAT'S INCLUDED:
 ${planInfo.features.map((feature) => `• ${feature}`).join("\n")}
 
 EXPECTED TIMELINE: ${data.rushDelivery ? "Rush: " + Math.ceil(Number.parseInt(planInfo.timeline.split("-")[0]) * 0.5) + "-" + Math.ceil(Number.parseInt(planInfo.timeline.split("-")[1]) * 0.5) + " weeks" : planInfo.timeline}
+
+${
+  data.chatAccessToken
+    ? `
+💬 PRIORITY CUSTOMER PORTAL:
+You now have exclusive access to our priority customer support portal.
+
+Access your portal: ${process.env.NEXT_PUBLIC_SITE_URL}/customer-portal/${data.chatAccessToken}
+
+Bookmark this link for easy access to priority support.
+Access expires in 6 months.
+`
+    : ""
+}
 
 ${
   data.chatAccessToken
