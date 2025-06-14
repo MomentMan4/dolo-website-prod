@@ -84,16 +84,15 @@ export function Hero() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
           >
-            <div className="relative h-[250px] w-full overflow-hidden sm:h-[300px] md:h-[350px] lg:h-[400px]">
+            <div className="relative h-[250px] w-full sm:h-[300px] md:h-[350px] lg:h-[400px] bg-white/80 rounded-lg backdrop-blur-sm">
               <Image
-                src="/dolo-devices-v10-recreation.png"
-                alt="Modern devices arrangement showing desktop monitor in center, tablet on left, laptop on right, and smartphone in front, all displaying responsive Dolo websites"
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Dolo%20Landing%20Page%20Hero%20Image-piMj8YbIOsvCcagb1DfwAUvp5iW7oa.png"
+                alt="Analytics dashboard displayed across multiple devices including desktop monitor, laptop, tablet, and smartphone, showcasing responsive web design with performance metrics, transaction data (23,400), segment analytics (5,120), and member statistics (120) demonstrating cross-device compatibility and professional data visualization"
                 fill
-                className="object-cover"
+                className="object-contain p-4"
                 sizes="(max-width: 768px) 100vw, 50vw"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-navy/40 via-teal/30 to-coral/30"></div>
             </div>
           </motion.div>
         </div>
