@@ -38,13 +38,13 @@ export async function POST(request: NextRequest) {
     let emailSent = false
     if (isResendConfigured()) {
       try {
-        await sendEmail("quiz-result", email, {
+        const emailResult = await sendEmail("quiz-result", email, {
           plan,
           description,
           link,
-          name: email.split("@")[0],
+          name: email.split("@")[0], // Extract name from email
         })
-        emailSent = true
+        emailSent = emailResult.success
         console.log("Quiz result email sent successfully")
       } catch (emailError) {
         console.error("Email sending error:", emailError)

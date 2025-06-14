@@ -34,7 +34,7 @@ export async function submitPrivateBuildForm(formData: FormData) {
       data.vision = "No vision provided"
     }
 
-    // Submit to database with fallback
+    // Submit to database with fallback - this should be fast
     const result = await submitPrivateBuildApplication(data)
 
     if (!result.success) {
@@ -46,28 +46,39 @@ export async function submitPrivateBuildForm(formData: FormData) {
       fallbackUsed: result.fallbackUsed,
     })
 
-    // Send notification emails if Resend is configured
+    // Send notification emails if Resend is configured - run in parallel for speed
     if (isResendConfigured()) {
       try {
-        // Send notification to admin
-        await sendEmail("private-build-application", "hello@dolobuilds.com", {
-          name: data.name,
-          email: data.email,
-          company: data.company || "Not provided",
-          projectType: data.project_type,
-          budget: data.budget,
-          timeline: data.timeline,
-          vision: data.vision,
-          referralSource: data.referral_source || "Not provided",
-          applicationId: result.data?.id || "N/A",
-        })
+        // Send both emails in parallel to reduce delay
+        const [adminEmailResult, userEmailResult] = await Promise.all([
+          // Send notification to admin
+          sendEmail("private-build-application", "hello@dolobuilds.com", {
+            name: data.name,
+            email: data.email,
+            company: data.company || "Not provided",
+            projectType: data.project_type,
+            budget: data.budget,
+            timeline: data.timeline,
+            vision: data.vision,
+            referralSource: data.referral_source || "Not provided",
+            applicationId: result.data?.id || "N/A",
+            submissionDate: new Date().toLocaleDateString(),
+          }),
 
-        // Send confirmation to user
-        await sendEmail("welcome", data.email, {
-          name: data.name,
-        })
+          // Send confirmation to user
+          sendEmail("private-build-confirmation", data.email, {
+            name: data.name,
+            projectType: data.project_type,
+            budget: data.budget,
+            timeline: data.timeline,
+            applicationId: result.data?.id || "N/A",
+          }),
+        ])
 
-        console.log("Private build emails sent successfully")
+        console.log("Private build emails sent successfully", {
+          adminEmail: adminEmailResult.success,
+          userEmail: userEmailResult.success,
+        })
       } catch (emailError) {
         console.error("Email sending error:", emailError)
         // Don't fail the form submission if email fails

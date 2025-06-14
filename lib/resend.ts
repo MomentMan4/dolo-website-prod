@@ -428,15 +428,16 @@ The Dolo Team
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Payment Confirmed - Dolo</title>
+          <link rel="icon" type="image/x-icon" href="https://dolobuilds.com/favicon.ico">
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
           
-          <!-- Header -->
-          <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+          <!-- Header with Dolo Branding -->
+          <div style="background: #2c3e50; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
             <div style="background: rgba(255, 255, 255, 0.1); width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-              <span style="font-size: 32px;">💳</span>
+              <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 32px; height: 32px; filter: brightness(0) invert(1);" />
             </div>
-            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">Payment Confirmed!</h1>
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">💳 Payment Confirmed!</h1>
             <p style="color: rgba(255, 255, 255, 0.9); margin: 15px 0 0 0; font-size: 16px;">Thank you ${data.customerName || "valued customer"}!</p>
           </div>
           
@@ -492,10 +493,21 @@ The Dolo Team
           
           <!-- Footer -->
           <div style="background: #2c3e50; color: white; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;">
-            <p style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">Thank you for choosing Dolo!</p>
-            <p style="margin: 0; font-size: 12px; color: #bdc3c7;">
-              © ${new Date().getFullYear()} Dolo. All rights reserved.
-            </p>
+            <div style="margin-bottom: 15px;">
+              <div style="background: rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
+                <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 24px; height: 24px; filter: brightness(0) invert(1);" />
+              </div>
+              <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ecf0f1;">Dolo - Building the future, one website at a time</p>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 15px;">
+              <p style="margin: 0 0 8px 0; font-size: 11px; color: #bdc3c7;">
+                © ${new Date().getFullYear()} Dolo. All rights reserved.
+              </p>
+              <p style="margin: 0; font-size: 10px; color: #95a5a6;">
+                This notification was generated automatically from your payment confirmation
+              </p>
+            </div>
           </div>
         </body>
         </html>
@@ -525,7 +537,7 @@ Questions? Contact us at hello@dolobuilds.com
 © ${new Date().getFullYear()} Dolo. All rights reserved.
       `.trim()
     } else if (template === "welcome") {
-      subject = `🎉 Welcome to Dolo - Your Payment is Confirmed!`
+      subject = `🎉 Welcome to Dolo - Your ${data.projectType || "Project"} is Starting!`
 
       // Generate plan details based on project type
       const getPlanDetails = (projectType: string) => {
@@ -543,12 +555,6 @@ Questions? Contact us at hello@dolobuilds.com
               "1 month of free support",
             ],
             timeline: "2-3 weeks",
-            deliverables: [
-              "Fully functional website",
-              "Mobile-responsive design",
-              "Basic SEO setup",
-              "Content management training",
-            ],
           },
           pro: {
             name: "Pro Plan",
@@ -565,14 +571,6 @@ Questions? Contact us at hello@dolobuilds.com
               "3 months of free support",
             ],
             timeline: "3-4 weeks",
-            deliverables: [
-              "Fully functional website",
-              "E-commerce setup (if applicable)",
-              "Advanced SEO configuration",
-              "Analytics dashboard setup",
-              "Content management training",
-              "Marketing integration",
-            ],
           },
           premier: {
             name: "Premier Plan",
@@ -589,15 +587,6 @@ Questions? Contact us at hello@dolobuilds.com
               "6 months of free support",
             ],
             timeline: "4-6 weeks",
-            deliverables: [
-              "Fully functional website",
-              "Complete e-commerce solution",
-              "Custom feature development",
-              "Performance optimization",
-              "Security implementation",
-              "Comprehensive training",
-              "Marketing tool integration",
-            ],
           },
           "private-build": {
             name: "Private Build",
@@ -614,267 +603,166 @@ Questions? Contact us at hello@dolobuilds.com
               "12 months of premium support",
             ],
             timeline: "6-12 weeks",
-            deliverables: [
-              "Fully custom website solution",
-              "Custom backend systems",
-              "API integrations",
-              "Advanced security setup",
-              "Performance optimization",
-              "Comprehensive documentation",
-              "Dedicated support channel",
-            ],
           },
         }
         return planDetails[projectType as keyof typeof planDetails] || planDetails.essential
       }
 
       const planInfo = getPlanDetails(data.projectType || "essential")
-
-      // Generate add-ons list
-      const getAddOnsList = () => {
-        const addOns = []
-        if (data.rushDelivery) addOns.push("🚀 Rush Delivery (50% faster timeline)")
-        if (data.addOns?.includes("maintenance")) addOns.push("🔧 Website Maintenance Package")
-        if (data.addOns?.includes("googleBusiness")) addOns.push("📍 Google Business Profile Setup")
-        if (data.addOns?.includes("accessibility")) addOns.push("♿ Accessibility Compliance Package")
-        if (data.addOns?.includes("privacy")) addOns.push("🔒 Privacy Policy & Terms Generation")
-        return addOns
-      }
-
-      const addOnsList = getAddOnsList()
       const chatUrl = `https://tawk.to/chat/${data.chatAccessToken || "default"}`
 
-      // HTML version with rich formatting and branding
+      // HTML version with enhanced project information
       html = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Welcome to Dolo - Payment Confirmed</title>
+      <title>Welcome to Dolo - ${data.projectType || "Project"} Starting</title>
       <link rel="icon" type="image/x-icon" href="https://dolobuilds.com/favicon.ico">
     </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 700px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
       
       <!-- Header with Dolo Branding -->
-      <div style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); padding: 40px 30px; text-align: center; border-radius: 8px 8px 0 0;">
+      <div style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
         <div style="background: rgba(255, 255, 255, 0.1); width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
           <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 32px; height: 32px; filter: brightness(0) invert(1);" />
         </div>
-        <h1 style="color: white; margin: 0; font-size: 32px; font-weight: 700;">🎉 Payment Confirmed!</h1>
-        <p style="color: rgba(255, 255, 255, 0.9); margin: 15px 0 0 0; font-size: 18px;">Welcome to Dolo, ${data.customerName || "valued customer"}!</p>
-        <p style="color: rgba(255, 255, 255, 0.8); margin: 10px 0 0 0; font-size: 14px;">Your project is now officially underway</p>
+        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">🎉 Welcome to Dolo!</h1>
+        <p style="color: rgba(255, 255, 255, 0.9); margin: 15px 0 0 0; font-size: 16px;">Hi ${data.customerName || data.name || "there"}, your ${data.projectType || "project"} is starting!</p>
       </div>
       
+      ${
+        data.amount
+          ? `
       <!-- Payment Confirmation -->
       <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
-        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 24px; font-weight: 600;">
-          <span style="color: #ff6b35;">✅</span> Payment Successfully Processed
+        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+          <span style="color: #28a745;">✅</span> Payment Confirmed
         </h2>
         
-        <div style="background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); padding: 25px; border-radius: 8px; border-left: 4px solid #28a745; margin-bottom: 25px;">
-          <div style="display: grid; gap: 15px;">
-            <div><strong style="color: #155724;">Amount Paid:</strong> <span style="color: #155724; font-size: 18px; font-weight: 600;">$${data.amount || "0.00"}</span></div>
-            <div><strong style="color: #155724;">Payment Date:</strong> <span style="color: #155724;">${new Date().toLocaleDateString()}</span></div>
+        <div style="background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #28a745;">
+          <div style="display: grid; gap: 10px;">
+            <div><strong style="color: #155724;">Amount Paid:</strong> <span style="color: #155724; font-size: 18px; font-weight: 600;">$${data.amount}</span></div>
             <div><strong style="color: #155724;">Project ID:</strong> <span style="color: #155724; font-family: monospace;">#${data.projectId || "DOLO-" + Date.now()}</span></div>
+            ${data.rushDelivery ? '<div><strong style="color: #155724;">Rush Delivery:</strong> <span style="color: #155724;">✅ Included</span></div>' : ""}
           </div>
         </div>
       </div>
+      `
+          : ""
+      }
       
       <!-- Plan Details -->
       <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
-        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 24px; font-weight: 600;">
+        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
           <span style="color: #ff6b35;">📋</span> Your ${planInfo.name}
         </h2>
         
-        <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 25px;">
-          <p style="font-size: 16px; color: #495057; margin-bottom: 20px; line-height: 1.6;">${planInfo.description}</p>
-          
-          <div style="background: white; padding: 20px; border-radius: 6px; border-left: 3px solid #ff6b35;">
-            <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px; font-weight: 600;">What's Included:</h3>
-            <ul style="color: #495057; margin: 0; padding-left: 20px; line-height: 1.8;">
-              ${planInfo.features.map((feature) => `<li>${feature}</li>`).join("")}
-            </ul>
-          </div>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-            <div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #e9ecef;">
-              <div style="color: #ff6b35; font-size: 24px; margin-bottom: 5px;">⏱️</div>
-              <div style="font-weight: 600; color: #2c3e50;">Timeline</div>
-              <div style="color: #6c757d; font-size: 14px;">${data.rushDelivery ? "Rush: " + Math.ceil(Number.parseInt(planInfo.timeline.split("-")[0]) * 0.5) + "-" + Math.ceil(Number.parseInt(planInfo.timeline.split("-")[1]) * 0.5) + " weeks" : planInfo.timeline}</div>
-            </div>
-            <div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #e9ecef;">
-              <div style="color: #ff6b35; font-size: 24px; margin-bottom: 5px;">🎯</div>
-              <div style="font-weight: 600; color: #2c3e50;">Project Type</div>
-              <div style="color: #6c757d; font-size: 14px;">${planInfo.name}</div>
-            </div>
-          </div>
-        </div>
+        <p style="color: #495057; margin-bottom: 20px; line-height: 1.8;">${planInfo.description}</p>
         
-        ${
-          addOnsList.length > 0
-            ? `
-        <div style="background: linear-gradient(135deg, #fff5f0 0%, #ffe8d6 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #ff6b35;">
-          <h3 style="color: #8b4513; margin-bottom: 15px; font-size: 18px; font-weight: 600;">
-            <span style="font-size: 20px;">🎁</span> Add-Ons Included
-          </h3>
-          <ul style="color: #8b4513; margin: 0; padding-left: 20px; line-height: 1.8;">
-            ${addOnsList.map((addOn) => `<li>${addOn}</li>`).join("")}
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 3px solid #ff6b35;">
+          <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px; font-weight: 600;">What's Included:</h3>
+          <ul style="color: #495057; margin: 0; padding-left: 20px; line-height: 1.8;">
+            ${planInfo.features.map((feature) => `<li>${feature}</li>`).join("")}
           </ul>
         </div>
-        `
-            : ""
-        }
+        
+        <div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #e9ecef; margin-top: 20px;">
+          <div style="color: #ff6b35; font-size: 24px; margin-bottom: 5px;">⏱️</div>
+          <div style="font-weight: 600; color: #2c3e50;">Expected Timeline</div>
+          <div style="color: #6c757d; font-size: 14px;">${data.rushDelivery ? "Rush: " + Math.ceil(Number.parseInt(planInfo.timeline.split("-")[0]) * 0.5) + "-" + Math.ceil(Number.parseInt(planInfo.timeline.split("-")[1]) * 0.5) + " weeks" : planInfo.timeline}</div>
+        </div>
       </div>
       
-      <!-- Next Steps -->
+      ${
+        data.chatAccessToken
+          ? `
+      <!-- Chat Access -->
       <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
-        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 24px; font-weight: 600;">
+        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+          <span style="color: #ff6b35;">💬</span> Priority Chat Support
+        </h2>
+        
+        <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+          <p style="color: #1565c0; margin-bottom: 15px; font-size: 16px; line-height: 1.6;">
+            You have exclusive access to our priority chat support with your unique access token.
+          </p>
+          
+          <div style="background: white; padding: 15px; border-radius: 6px; margin: 15px 0;">
+            <strong style="color: #2c3e50;">Chat Access Token:</strong>
+            <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-top: 5px; font-family: monospace; color: #ff6b35; font-weight: 600;">${data.chatAccessToken}</div>
+          </div>
+          
+          <div style="text-align: center; margin-top: 15px;">
+            <a href="${chatUrl}" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px;">
+              💬 Start Priority Chat
+            </a>
+          </div>
+        </div>
+      </div>
+      `
+          : ""
+      }
+      
+      <!-- What's Next -->
+      <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
+        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
           <span style="color: #ff6b35;">🚀</span> What Happens Next
         </h2>
         
-        <div style="display: grid; gap: 20px;">
-          <div style="display: flex; align-items: flex-start; gap: 15px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ff6b35;">
-            <div style="background: #ff6b35; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">1</div>
-            <div>
-              <h3 style="color: #2c3e50; margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">Project Kickoff (Within 24 hours)</h3>
-              <p style="color: #495057; margin: 0; line-height: 1.6;">Our team will reach out to schedule your project kickoff call and gather detailed requirements.</p>
-            </div>
-          </div>
-          
-          <div style="display: flex; align-items: flex-start; gap: 15px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
-            <div style="background: #28a745; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">2</div>
-            <div>
-              <h3 style="color: #2c3e50; margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">Design & Development</h3>
-              <p style="color: #495057; margin: 0; line-height: 1.6;">We'll create your custom website according to your specifications and keep you updated throughout the process.</p>
-            </div>
-          </div>
-          
-          <div style="display: flex; align-items: flex-start; gap: 15px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #17a2b8;">
-            <div style="background: #17a2b8; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">3</div>
-            <div>
-              <h3 style="color: #2c3e50; margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">Review & Launch</h3>
-              <p style="color: #495057; margin: 0; line-height: 1.6;">You'll review the completed website, request any final changes, and then we'll launch it live.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- TawkTo Chat Access -->
-      <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
-        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 24px; font-weight: 600;">
-          <span style="color: #ff6b35;">💬</span> Exclusive Chat Support Access
-        </h2>
-        
-        <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 25px; border-radius: 8px; border-left: 4px solid #2196f3; margin-bottom: 20px;">
-          <p style="color: #1565c0; margin-bottom: 20px; font-size: 16px; line-height: 1.6;">
-            As a paying customer, you now have exclusive access to our priority chat support. Use the details below to connect with our team instantly.
-          </p>
-          
-          <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e3f2fd;">
-            <div style="margin-bottom: 15px;">
-              <strong style="color: #2c3e50;">Your Unique Chat Access Code:</strong>
-              <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 5px; font-family: monospace; font-size: 16px; color: #ff6b35; font-weight: 600; border: 2px dashed #ff6b35;">
-                ${data.chatAccessToken || "DOLO-CHAT-" + Date.now()}
-              </div>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-              <strong style="color: #2c3e50;">Chat Support URL:</strong>
-              <div style="margin-top: 5px;">
-                <a href="${chatUrl}" style="color: #2196f3; text-decoration: none; font-weight: 600; word-break: break-all;">${chatUrl}</a>
-              </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px;">
-              <a href="${chatUrl}" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px;">
-                💬 Start Chat Now
-              </a>
-            </div>
-          </div>
-        </div>
-        
-        <div style="background: #fff3cd; padding: 15px; border-radius: 6px; border-left: 3px solid #ffc107;">
-          <h3 style="color: #856404; margin-bottom: 10px; font-size: 16px; font-weight: 600;">How to Access Chat Support:</h3>
-          <ol style="color: #856404; margin: 0; padding-left: 20px; line-height: 1.8;">
-            <li>Click the "Start Chat Now" button above or visit the provided URL</li>
-            <li>When prompted, enter your unique chat access code</li>
-            <li>You'll be connected directly to our priority support team</li>
-            <li>Your chat access is valid for 6 months from today</li>
-          </ol>
-        </div>
-      </div>
-      
-      <!-- Project Deliverables -->
-      <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
-        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 24px; font-weight: 600;">
-          <span style="color: #ff6b35;">📦</span> What You'll Receive
-        </h2>
-        
         <div style="display: grid; gap: 15px;">
-          ${planInfo.deliverables
-            .map(
-              (deliverable, index) => `
-          <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #28a745;">
-            <div style="background: #28a745; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;">✓</div>
-            <span style="color: #495057; font-weight: 500;">${deliverable}</span>
+          <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #ff6b35;">
+            <div style="background: #ff6b35; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;">1</div>
+            <span style="color: #495057; font-weight: 500;">Project kickoff call within 24 hours</span>
           </div>
-          `,
-            )
-            .join("")}
+          <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #28a745;">
+            <div style="background: #28a745; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;">2</div>
+            <span style="color: #495057; font-weight: 500;">Requirements gathering and planning</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #2196f3;">
+            <div style="background: #2196f3; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;">3</div>
+            <span style="color: #495057; font-weight: 500;">Design and development phase</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #6f42c1;">
+            <div style="background: #6f42c1; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;">4</div>
+            <span style="color: #495057; font-weight: 500;">Review, testing, and launch</span>
+          </div>
         </div>
       </div>
       
       <!-- Contact Information -->
       <div style="background: white; padding: 30px;">
-        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 24px; font-weight: 600;">
-          <span style="color: #ff6b35;">📞</span> Need Help? We're Here for You
+        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+          <span style="color: #ff6b35;">📞</span> Get in Touch
         </h2>
         
-        <div style="display: grid; gap: 20px;">
-          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; text-align: center;">
-            <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px; font-weight: 600;">Multiple Ways to Reach Us</h3>
-            
-            <div style="display: grid; gap: 15px; margin: 20px 0;">
-              <a href="${chatUrl}" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px;">
-                💬 Priority Chat Support
-              </a>
-              
-              <a href="mailto:hello@dolobuilds.com?subject=Project%20Inquiry%20-%20${data.projectId || "New%20Project"}" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px;">
-                📧 Email Our Team
-              </a>
-              
-              <a href="https://calendly.com/dolo" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px;">
-                📅 Schedule a Call
-              </a>
-            </div>
-            
-            <p style="color: #6c757d; font-size: 12px; margin: 15px 0 0 0;">
-              Our team typically responds within 2-4 hours during business hours
-            </p>
-          </div>
+        <div style="text-align: center;">
+          <a href="mailto:hello@dolobuilds.com?subject=Project%20Inquiry%20-%20${data.projectId || "Welcome"}" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+            📧 Email Our Team
+          </a>
+          
+          <a href="https://calendly.com/dolo" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+            📅 Schedule a Call
+          </a>
         </div>
       </div>
       
       <!-- Footer -->
-      <div style="background: #2c3e50; color: white; padding: 30px; text-align: center; border-radius: 0 0 8px 8px;">
-        <div style="margin-bottom: 20px;">
-          <div style="background: rgba(255, 255, 255, 0.1); width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
-            <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 28px; height: 28px; filter: brightness(0) invert(1);" />
+      <div style="background: #2c3e50; color: white; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;">
+        <div style="margin-bottom: 15px;">
+          <div style="background: rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
+            <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 24px; height: 24px; filter: brightness(0) invert(1);" />
           </div>
-          <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #ecf0f1;">Thank you for choosing Dolo!</h3>
-          <p style="margin: 10px 0 0 0; font-size: 14px; color: #bdc3c7;">Building the future, one website at a time</p>
+          <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ecf0f1;">Dolo - Building the future, one website at a time</p>
         </div>
         
-        <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px;">
-          <p style="margin: 0 0 10px 0; font-size: 12px; color: #bdc3c7;">
+        <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 15px;">
+          <p style="margin: 0 0 8px 0; font-size: 11px; color: #bdc3c7;">
             © ${new Date().getFullYear()} Dolo. All rights reserved.
           </p>
-          <p style="margin: 0; font-size: 11px; color: #95a5a6;">
-            You're receiving this email because you completed a purchase on our website.
-            <br>
-            <a href="https://dolobuilds.com/privacy" style="color: #ff6b35; text-decoration: none;">Privacy Policy</a> | 
-            <a href="https://dolobuilds.com/terms" style="color: #ff6b35; text-decoration: none;">Terms of Service</a>
+          <p style="margin: 0; font-size: 10px; color: #95a5a6;">
+            You're receiving this email because you're a valued Dolo customer
           </p>
         </div>
       </div>
@@ -882,66 +770,366 @@ Questions? Contact us at hello@dolobuilds.com
     </html>
   `
 
-      // Plain text version for accessibility and email clients that don't support HTML
       text = `
-💳 PAYMENT CONFIRMATION
+🎉 WELCOME TO DOLO!
 
-Thank you for your payment, ${data.customerName || "valued customer"}!
+Hi ${data.customerName || data.name || "there"},
 
-PAYMENT DETAILS:
-Amount: $${data.amount || "0.00"}
-Project Type: ${data.projectType || "Website Development"}
+${
+  data.amount
+    ? `
+PAYMENT CONFIRMED:
+Amount: $${data.amount}
 Project ID: #${data.projectId || "DOLO-" + Date.now()}
-Rush Delivery: ${data.rushDelivery ? "Yes" : "No"}
-Payment Date: ${new Date().toLocaleDateString()}
+${data.rushDelivery ? "Rush Delivery: ✅ Included" : ""}
+`
+    : ""
+}
 
-Your payment has been successfully processed. You will receive a separate welcome email with detailed project information and next steps.
+YOUR ${planInfo.name.toUpperCase()}:
+${planInfo.description}
 
-Questions? Contact us at hello@dolobuilds.com
+WHAT'S INCLUDED:
+${planInfo.features.map((feature) => `• ${feature}`).join("\n")}
+
+EXPECTED TIMELINE: ${data.rushDelivery ? "Rush: " + Math.ceil(Number.parseInt(planInfo.timeline.split("-")[0]) * 0.5) + "-" + Math.ceil(Number.parseInt(planInfo.timeline.split("-")[1]) * 0.5) + " weeks" : planInfo.timeline}
+
+${
+  data.chatAccessToken
+    ? `
+PRIORITY CHAT SUPPORT:
+Access Token: ${data.chatAccessToken}
+Chat URL: ${chatUrl}
+`
+    : ""
+}
+
+WHAT HAPPENS NEXT:
+1. Project kickoff call within 24 hours
+2. Requirements gathering and planning  
+3. Design and development phase
+4. Review, testing, and launch
+
+GET IN TOUCH:
+- Email: hello@dolobuilds.com
+- Schedule a call: https://calendly.com/dolo
+
+Best regards,
+The Dolo Team
+
+---
+© ${new Date().getFullYear()} Dolo. All rights reserved.
+  `.trim()
+    } else if (template === "private-build-application") {
+      subject = `🏗️ New Private Build Application - ${data.name}`
+
+      html = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Private Build Application - Dolo</title>
+          <link rel="icon" type="image/x-icon" href="https://dolobuilds.com/favicon.ico">
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 700px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
+          
+          <!-- Header -->
+          <div style="background: #2c3e50; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+            <div style="background: rgba(255, 255, 255, 0.1); width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+              <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 32px; height: 32px; filter: brightness(0) invert(1);" />
+            </div>
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">🏗️ New Private Build Application</h1>
+            <p style="color: rgba(255, 255, 255, 0.9); margin: 15px 0 0 0; font-size: 16px;">Received ${data.submissionDate || new Date().toLocaleDateString()}</p>
+          </div>
+          
+          <!-- Applicant Information -->
+          <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+              <span style="color: #ff6b35;">👤</span> Applicant Information
+            </h2>
+            
+            <div style="display: grid; gap: 15px;">
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 3px solid #ff6b35;">
+                <strong style="color: #2c3e50;">Name:</strong> 
+                <span style="color: #495057; margin-left: 10px;">${data.name}</span>
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 3px solid #ff6b35;">
+                <strong style="color: #2c3e50;">Email:</strong> 
+                <a href="mailto:${data.email}" style="color: #ff6b35; text-decoration: none; margin-left: 10px;">${data.email}</a>
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 3px solid #ff6b35;">
+                <strong style="color: #2c3e50;">Company:</strong> 
+                <span style="color: #495057; margin-left: 10px;">${data.company || "Not provided"}</span>
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border-left: 3px solid #ff6b35;">
+                <strong style="color: #2c3e50;">Application ID:</strong> 
+                <span style="color: #495057; margin-left: 10px; font-family: monospace;">${data.applicationId}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Project Details -->
+          <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+              <span style="color: #ff6b35;">📋</span> Project Details
+            </h2>
+            
+            <div style="display: grid; gap: 20px;">
+              <div style="background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #28a745;">
+                <div style="display: grid; gap: 15px;">
+                  <div><strong style="color: #155724;">Project Type:</strong> <span style="color: #155724;">${data.projectType}</span></div>
+                  <div><strong style="color: #155724;">Budget:</strong> <span style="color: #155724;">${data.budget}</span></div>
+                  <div><strong style="color: #155724;">Timeline:</strong> <span style="color: #155724;">${data.timeline}</span></div>
+                  <div><strong style="color: #155724;">Referral Source:</strong> <span style="color: #155724;">${data.referralSource || "Not provided"}</span></div>
+                </div>
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+                <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px; font-weight: 600;">Project Vision:</h3>
+                <div style="color: #495057; line-height: 1.8; white-space: pre-wrap;">${data.vision}</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Actions -->
+          <div style="background: white; padding: 30px;">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+              <span style="color: #ff6b35;">⚡</span> Quick Actions
+            </h2>
+            
+            <div style="text-align: center;">
+              <a href="mailto:${data.email}?subject=Re: Your Private Build Application&body=Hi ${data.name},%0D%0A%0D%0AThank you for your Private Build application. I'd love to discuss your project in more detail.%0D%0A%0D%0A" 
+                 style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+                📧 Reply to ${data.name}
+              </a>
+              
+              <a href="https://calendly.com/dolo" 
+                 style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+                📅 Schedule Strategy Call
+              </a>
+              
+              <a href="https://dolobuilds.com/admin/dashboard" 
+                 style="background: #6c757d; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+                🔧 Admin Dashboard
+              </a>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background: #2c3e50; color: white; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;">
+            <div style="margin-bottom: 15px;">
+              <div style="background: rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
+                <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 24px; height: 24px; filter: brightness(0) invert(1);" />
+              </div>
+              <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ecf0f1;">Dolo - Building the future, one website at a time</p>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 15px;">
+              <p style="margin: 0 0 8px 0; font-size: 11px; color: #bdc3c7;">
+                © ${new Date().getFullYear()} Dolo. All rights reserved.
+              </p>
+              <p style="margin: 0; font-size: 10px; color: #95a5a6;">
+                This notification was generated automatically from a Private Build application
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+
+      text = `
+🏗️ NEW PRIVATE BUILD APPLICATION
+
+APPLICANT INFORMATION:
+Name: ${data.name}
+Email: ${data.email}
+Company: ${data.company || "Not provided"}
+Application ID: ${data.applicationId}
+
+PROJECT DETAILS:
+Project Type: ${data.projectType}
+Budget: ${data.budget}
+Timeline: ${data.timeline}
+Referral Source: ${data.referralSource || "Not provided"}
+
+PROJECT VISION:
+${data.vision}
+
+QUICK ACTIONS:
+- Reply to ${data.name}: mailto:${data.email}
+- Schedule Strategy Call: https://calendly.com/dolo
+- Admin Dashboard: https://dolobuilds.com/admin/dashboard
+
+Submission Date: ${data.submissionDate || new Date().toLocaleDateString()}
 
 ---
 © ${new Date().getFullYear()} Dolo. All rights reserved.
       `.trim()
-    } else if (template === "private-build-application") {
-      subject = `🏗️ Premium Private Build Application - ${data.name}`
+    } else if (template === "private-build-confirmation") {
+      subject = `🏗️ Private Build Application Received - Next Steps`
 
       html = `
-        <h2>🏗️ New Premium Private Build Application</h2>
-        <p><strong>Applicant:</strong> ${data.name}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
-        <p><strong>Company:</strong> ${data.company || "Not provided"}</p>
-        <p><strong>Budget:</strong> ${data.budget}</p>
-        <p><strong>Timeline:</strong> ${data.timeline}</p>
-        <p><strong>Project Type:</strong> ${data.projectType || "Not specified"}</p>
-        <h3>Project Vision:</h3>
-        <p>${data.vision ? data.vision.replace(/\n/g, "<br>") : "Not provided"}</p>
-        <p><strong>Referral Source:</strong> ${data.referralSource || "Not provided"}</p>
-        <p><strong>Application Date:</strong> ${new Date().toLocaleDateString()}</p>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Private Build Application Received - Dolo</title>
+          <link rel="icon" type="image/x-icon" href="https://dolobuilds.com/favicon.ico">
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
+          
+          <!-- Header -->
+          <div style="background: #2c3e50; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+            <div style="background: rgba(255, 255, 255, 0.1); width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+              <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 32px; height: 32px; filter: brightness(0) invert(1);" />
+            </div>
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">🏗️ Application Received!</h1>
+            <p style="color: rgba(255, 255, 255, 0.9); margin: 15px 0 0 0; font-size: 16px;">Thank you ${data.name}!</p>
+          </div>
+          
+          <!-- Confirmation Message -->
+          <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+              <span style="color: #28a745;">✅</span> Your Private Build Application Has Been Received
+            </h2>
+            
+            <p style="color: #495057; margin-bottom: 20px; line-height: 1.8;">
+              Thank you for your interest in our Private Build service! We've received your application and are excited about the possibility of working together on your unique project.
+            </p>
+            
+            <div style="background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #28a745;">
+              <h3 style="color: #155724; margin-bottom: 15px; font-size: 18px; font-weight: 600;">
+                <span style="font-size: 20px;">📋</span> Application Summary
+              </h3>
+              <div style="color: #155724; line-height: 1.8;">
+                <div><strong>Project Type:</strong> ${data.projectType}</div>
+                <div><strong>Budget Range:</strong> ${data.budget}</div>
+                <div><strong>Timeline:</strong> ${data.timeline}</div>
+                <div><strong>Application ID:</strong> #${data.applicationId}</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- What's Next -->
+          <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+              <span style="color: #ff6b35;">🚀</span> What Happens Next
+            </h2>
+            
+            <div style="display: grid; gap: 20px;">
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ff6b35;">
+                <div style="background: #ff6b35; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">1</div>
+                <div>
+                  <h3 style="color: #2c3e50; margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">Application Review (24-48 hours)</h3>
+                  <p style="color: #495057; margin: 0; line-height: 1.6;">Our team will carefully review your application and project requirements to ensure Private Build is the right fit.</p>
+                </div>
+              </div>
+              
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                <div style="background: #28a745; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">2</div>
+                <div>
+                  <h3 style="color: #2c3e50; margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">Strategy Call</h3>
+                  <p style="color: #495057; margin: 0; line-height: 1.6;">We'll schedule a detailed strategy call to discuss your vision, requirements, and how we can bring your project to life.</p>
+                </div>
+              </div>
+              
+              <div style="display: flex; align-items: flex-start; gap: 15px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #2196f3;">
+                <div style="background: #2196f3; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">3</div>
+                <div>
+                  <h3 style="color: #2c3e50; margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">Custom Proposal</h3>
+                  <p style="color: #495057; margin: 0; line-height: 1.6;">Based on our discussion, we'll create a detailed proposal outlining the project scope, timeline, and investment.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Contact Information -->
+          <div style="background: white; padding: 30px;">
+            <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
+              <span style="color: #ff6b35;">📞</span> Questions? We're Here to Help
+            </h2>
+            
+            <p style="color: #495057; margin-bottom: 20px; line-height: 1.8;">
+              Have questions about the Private Build process or want to discuss your project further? Don't hesitate to reach out!
+            </p>
+            
+            <div style="text-align: center;">
+              <a href="mailto:hello@dolobuilds.com?subject=Private%20Build%20Inquiry%20-%20${data.applicationId}" style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+                📧 Email Our Team
+              </a>
+              
+              <a href="https://calendly.com/dolo" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+                📅 Schedule a Call
+              </a>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background: #2c3e50; color: white; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;">
+            <div style="margin-bottom: 15px;">
+              <div style="background: rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
+                <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 24px; height: 24px; filter: brightness(0) invert(1);" />
+              </div>
+              <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ecf0f1;">Dolo - Building the future, one website at a time</p>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 15px;">
+              <p style="margin: 0 0 8px 0; font-size: 11px; color: #bdc3c7;">
+                © ${new Date().getFullYear()} Dolo. All rights reserved.
+              </p>
+              <p style="margin: 0; font-size: 10px; color: #95a5a6;">
+                This confirmation was generated automatically from your Private Build application
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
       `
 
       text = `
-🏗️ New Premium Private Build Application
+🏗️ PRIVATE BUILD APPLICATION RECEIVED
 
-Applicant: ${data.name}
-Email: ${data.email}
-Company: ${data.company || "Not provided"}
-Budget: ${data.budget}
+Thank you ${data.name}!
+
+Your Private Build application has been received and we're excited about the possibility of working together on your unique project.
+
+APPLICATION SUMMARY:
+Project Type: ${data.projectType}
+Budget Range: ${data.budget}
 Timeline: ${data.timeline}
-Project Type: ${data.projectType || "Not specified"}
+Application ID: #${data.applicationId}
 
-Project Vision:
-${data.vision || "Not provided"}
+WHAT HAPPENS NEXT:
 
-Referral Source: ${data.referralSource || "Not provided"}
-Application Date: ${new Date().toLocaleDateString()}
+1. Application Review (24-48 hours)
+   Our team will carefully review your application and project requirements.
+
+2. Strategy Call
+   We'll schedule a detailed strategy call to discuss your vision and requirements.
+
+3. Custom Proposal
+   Based on our discussion, we'll create a detailed proposal outlining the project scope, timeline, and investment.
+
+QUESTIONS?
+Have questions about the Private Build process? Don't hesitate to reach out!
+
+- Email: hello@dolobuilds.com
+- Schedule a call: https://calendly.com/dolo
+
+Best regards,
+The Dolo Team
+
+---
+© ${new Date().getFullYear()} Dolo. All rights reserved.
       `.trim()
     }
 
-    // Ensure we have both html and text content
-    if (!html || !text) {
-      throw new Error(`Missing email content for template: ${template}`)
-    }
-
+    // Send the email
     const result = await resend!.emails.send({
       from: "Dolo <noreply@dolobuilds.com>",
       to: [to],
@@ -950,43 +1138,10 @@ Application Date: ${new Date().toLocaleDateString()}
       text,
     })
 
-    if (result.error) {
-      console.error("Resend API error:", result.error)
-      return { success: false, error: result.error.message }
-    }
-
-    console.log("Email sent successfully:", result.data?.id)
-    return { success: true, messageId: result.data?.id }
+    console.log(`Email sent successfully: ${result.id}`)
+    return { success: true, messageId: result.id }
   } catch (error) {
-    console.error("Error sending email:", error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    }
-  }
-}
-
-// Add a function to log email to database (for tracking purposes)
-export async function logEmailToDatabase(
-  customerId: string,
-  template: string,
-  recipient: string,
-  success: boolean,
-  messageId?: string,
-  error?: string,
-): Promise<void> {
-  try {
-    // This would typically log to a database
-    console.log("Email log:", {
-      customerId,
-      template,
-      recipient,
-      success,
-      messageId,
-      error,
-      timestamp: new Date().toISOString(),
-    })
-  } catch (logError) {
-    console.error("Failed to log email to database:", logError)
+    console.error("Email sending failed:", error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }

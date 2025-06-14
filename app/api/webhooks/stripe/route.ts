@@ -111,6 +111,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         amount: (session.amount_total || 0) / 100,
         rushDelivery: session.metadata.rush_delivery === "true",
         projectId: project.id,
+        name: dbCustomer.name, // Add name for welcome template
       },
       dbCustomer.id,
     )

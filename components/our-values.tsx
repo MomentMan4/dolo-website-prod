@@ -44,7 +44,7 @@ export function OurValues() {
     },
     {
       title: "Innovation",
-      description: "We are not cookie cutters. Every build is designed to solve, stand out, and scale.",
+      description: "We are not cookie cutter. Every build is designed to solve, stand out, and scale.",
       icon: Lightbulb,
       color: "bg-coral/10",
       iconColor: "text-coral",
