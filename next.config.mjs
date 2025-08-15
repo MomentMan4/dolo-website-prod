@@ -22,14 +22,16 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    optimizeCss: true,
+    // Remove optimizeCss as it's causing the critters module error
+    // optimizeCss: true,
   },
   compress: true,
   poweredByHeader: false,
   generateEtags: true,
   trailingSlash: false,
   reactStrictMode: true,
-  swcMinify: true,
+  // Remove swcMinify as it's deprecated in Next.js 15
+  // swcMinify: true,
 }
 
 export default nextConfig
