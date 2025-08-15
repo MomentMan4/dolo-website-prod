@@ -1,46 +1,51 @@
-const { ESLint } = require("eslint")
+const { FlatCompat } = require("@eslint/eslintrc")
+const js = require("@eslint/js")
+const typescriptEslint = require("@typescript-eslint/eslint-plugin")
+const typescriptParser = require("@typescript-eslint/parser")
+const react = require("eslint-plugin-react")
+const reactHooks = require("eslint-plugin-react-hooks")
+const prettier = require("eslint-config-prettier")
 
-/** @type {import('eslint').Linter.Config} */
-module.exports = {
-  extends: ["next/core-web-vitals", "eslint:recommended", "@typescript-eslint/recommended", "prettier"],
-  parser: "@typescript-eslint/parser",
-  plugins: ["@typescript-eslint", "react", "react-hooks"],
-  parserOptions: {
-    ecmaVersion: 2021,
-    sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+})
+
+module.exports = [
+  ...compat.extends("next/core-web-vitals"),
+  {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
+    plugins: {
+      "@typescript-eslint": typescriptEslint,
+      react: react,
+      "react-hooks": reactHooks,
+    },
+    rules: {
+      ...typescriptEslint.configs.recommended.rules,
+      ...react.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
     },
   },
-  env: {
-    browser: true,
-    es2021: true,
-    node: true,
-  },
-  rules: {
-    // TypeScript specific rules
-    "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/no-non-null-assertion": "warn",
-
-    // React specific rules
-    "react/react-in-jsx-scope": "off",
-    "react/prop-types": "off",
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-
-    // General rules
-    "no-console": ["warn", { allow: ["warn", "error"] }],
-    "no-debugger": "error",
-    "prefer-const": "error",
-    "no-var": "error",
-  },
-  settings: {
-    react: {
-      version: "detect",
-    },
-  },
-  ignorePatterns: ["node_modules/", ".next/", "out/", "build/", "dist/", "*.config.js", "*.config.ts"],
-}
+  prettier,
+]
