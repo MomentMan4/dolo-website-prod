@@ -180,13 +180,18 @@ export async function createCheckoutSession(
   // Determine if we need subscription mode
   const needsSubscription = hasMaintenance && !isYearlyMaintenance
 
+  console.log("=== STRIPE SESSION CONFIGURATION ===")
+  console.log("Has maintenance:", hasMaintenance)
+  console.log("Is yearly maintenance:", isYearlyMaintenance)
+  console.log("Needs subscription:", needsSubscription)
+
   // Create session parameters
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     customer: customer.id,
-    mode: needsSubscription ? "subscription" : "payment", // Use subscription mode if needed
+    mode: needsSubscription ? "subscription" : "payment", // Use subscription mode for monthly maintenance
     success_url: options.successUrl,
     cancel_url: options.cancelUrl,
-    submit_type: "pay", // This ensures "Pay" instead of "Subscribe"
+    submit_type: needsSubscription ? undefined : "pay", // Don't set submit_type for subscription mode
     metadata: {
       plan: plan,
       customer_name: customerData.name,
@@ -222,7 +227,7 @@ export async function createCheckoutSession(
 
     // Add add-ons
     if (options.addOns) {
-      // First, add all non-maintenance add-ons
+      // First, add all non-maintenance add-ons as one-time payments
       for (const addOn of options.addOns) {
         if (addOn === "maintenance") continue // Handle maintenance separately
 
@@ -252,13 +257,14 @@ export async function createCheckoutSession(
       if (hasMaintenance) {
         if (needsSubscription) {
           // Monthly maintenance as a subscription
+          console.log("Adding monthly maintenance subscription")
           sessionParams.line_items!.push({
             price: STRIPE_PRICES.maintenance.monthly,
             quantity: 1,
           })
         } else if (isYearlyMaintenance) {
           // Yearly maintenance as a one-time payment
-          // Create a custom price for the yearly amount
+          console.log("Adding yearly maintenance as one-time payment")
           sessionParams.line_items!.push({
             price_data: {
               currency: "usd",
@@ -275,7 +281,15 @@ export async function createCheckoutSession(
     }
   }
 
+  console.log("=== CREATING STRIPE SESSION ===")
+  console.log("Session mode:", sessionParams.mode)
+  console.log("Line items count:", sessionParams.line_items?.length)
+  console.log("Session params:", JSON.stringify(sessionParams, null, 2))
+
   const session = await stripe.checkout.sessions.create(sessionParams)
+
+  console.log("Stripe session created:", session.id)
+  console.log("Session URL:", session.url)
 
   return {
     sessionId: session.id,

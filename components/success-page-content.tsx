@@ -3,148 +3,267 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
-import { Check, Mail, MessageCircle } from "lucide-react"
+import { Check, MessageCircle, Mail, Calendar, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-interface SessionData {
-  customer_email: string
-  customer_name: string
-  amount_total: number
-  plan: string
-  rush_delivery: boolean
+interface PaymentDetails {
+  customerName: string
+  customerEmail: string
+  amount: number
+  projectType: string
+  projectId: string
+  rushDelivery: boolean
+  chatAccessToken?: string
 }
 
 export function SuccessPageContent() {
   const searchParams = useSearchParams()
   const sessionId = searchParams.get("session_id")
-  const [sessionData, setSessionData] = useState<SessionData | null>(null)
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // Clear form data from localStorage since payment was successful
+    try {
+      localStorage.removeItem("dolo_start_form_data")
+      localStorage.removeItem("dolo_start_form_expiry")
+    } catch (error) {
+      console.warn("Failed to clear form data:", error)
+    }
+
     if (sessionId) {
-      fetch(`/api/checkout/session?session_id=${sessionId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setSessionData(data)
-          setLoading(false)
-        })
-        .catch((error) => {
-          console.error("Error fetching session data:", error)
-          setLoading(false)
-        })
+      fetchPaymentDetails(sessionId)
     } else {
+      setError("No session ID provided")
       setLoading(false)
     }
   }, [sessionId])
 
+  const fetchPaymentDetails = async (sessionId: string) => {
+    try {
+      const response = await fetch(`/api/checkout/session?session_id=${sessionId}`)
+      if (!response.ok) {
+        throw new Error("Failed to fetch payment details")
+      }
+      const data = await response.json()
+      setPaymentDetails(data)
+    } catch (error) {
+      console.error("Error fetching payment details:", error)
+      setError("Failed to load payment details")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#003B6F]/5 via-[#007196]/5 to-[#FF5073]/5">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-orange border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading your confirmation...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !paymentDetails) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#003B6F]/5 via-[#007196]/5 to-[#FF5073]/5">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-red-500 text-2xl">⚠️</span>
+          </div>
+          <h1 className="text-2xl font-bold text-navy mb-4">Something went wrong</h1>
+          <p className="text-gray-600 mb-6">{error || "Unable to load payment confirmation"}</p>
+          <Link href="/">
+            <Button className="bg-gradient-to-r from-orange to-pink hover:from-orange/90 hover:to-pink/90 text-white">
+              Return Home
+            </Button>
+          </Link>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 py-16">
-      <div className="container mx-auto px-4 md:px-6">
-        <motion.div
-          className="mx-auto max-w-2xl text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+    <div className="min-h-screen bg-gradient-to-br from-[#003B6F]/5 via-[#007196]/5 to-[#FF5073]/5">
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto">
+          {/* Success Header */}
           <motion.div
-            className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-full bg-green-100"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
           >
-            <Check className="h-10 w-10 text-green-600" />
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Check className="h-10 w-10 text-green-500" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-navy mb-4">Payment Successful! 🎉</h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Thank you {paymentDetails.customerName}! Your website project is now officially underway.
+            </p>
           </motion.div>
 
-          <h1 className="mb-4 text-3xl font-bold text-navy md:text-4xl">Payment Successful!</h1>
+          {/* Payment Details */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="bg-white rounded-xl shadow-lg p-8 mb-8"
+          >
+            <h2 className="text-2xl font-semibold text-navy mb-6">Payment Confirmation</h2>
 
-          {sessionData ? (
-            <div className="space-y-6">
-              <p className="text-lg text-gray-600">
-                Thank you, {sessionData.customer_name}! Your payment has been processed successfully.
-              </p>
-
-              <div className="rounded-xl bg-white p-6 shadow-lg">
-                <h2 className="mb-4 text-xl font-bold text-navy">Order Summary</h2>
-                <div className="space-y-2 text-left">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Plan:</span>
-                    <span className="font-medium capitalize">{sessionData.plan}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Amount:</span>
-                    <span className="font-medium">${(sessionData.amount_total / 100).toFixed(2)}</span>
-                  </div>
-                  {sessionData.rush_delivery && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Rush Delivery:</span>
-                      <span className="font-medium text-orange">Yes</span>
-                    </div>
-                  )}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500">Project Type</p>
+                  <p className="font-semibold text-navy capitalize">{paymentDetails.projectType}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Project ID</p>
+                  <p className="font-semibold text-navy">#{paymentDetails.projectId}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Customer Email</p>
+                  <p className="font-semibold text-navy">{paymentDetails.customerEmail}</p>
                 </div>
               </div>
 
-              <div className="rounded-xl bg-blue-50 p-6">
-                <h3 className="mb-4 text-lg font-bold text-navy">What happens next?</h3>
-                <div className="space-y-4 text-left">
-                  <div className="flex items-start space-x-3">
-                    <Mail className="mt-1 h-5 w-5 text-blue-600" />
-                    <div>
-                      <p className="font-medium">Check your email</p>
-                      <p className="text-sm text-gray-600">
-                        We've sent a welcome email to {sessionData.customer_email} with your project details.
-                      </p>
-                    </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500">Amount Paid</p>
+                  <p className="text-2xl font-bold text-green-600">${paymentDetails.amount.toLocaleString()}</p>
+                </div>
+                {paymentDetails.rushDelivery && (
+                  <div>
+                    <p className="text-sm text-gray-500">Rush Delivery</p>
+                    <p className="font-semibold text-orange">✅ Included</p>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <MessageCircle className="mt-1 h-5 w-5 text-blue-600" />
-                    <div>
-                      <p className="font-medium">Support chat access</p>
-                      <p className="text-sm text-gray-600">
-                        Your dedicated support chat will be activated within 24 hours.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Check className="mt-1 h-5 w-5 text-blue-600" />
-                    <div>
-                      <p className="font-medium">Project kickoff</p>
-                      <p className="text-sm text-gray-600">
-                        Our team will review your requirements and start development within 1-2 business days.
-                      </p>
-                    </div>
-                  </div>
+                )}
+                <div>
+                  <p className="text-sm text-gray-500">Payment Date</p>
+                  <p className="font-semibold text-navy">{new Date().toLocaleDateString()}</p>
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="space-y-6">
-              <p className="text-lg text-gray-600">
-                Your payment has been processed successfully! Check your email for confirmation details.
+          </motion.div>
+
+          {/* Customer Portal Access */}
+          {paymentDetails.chatAccessToken && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg p-8 mb-8 border border-blue-200"
+            >
+              <div className="flex items-center mb-4">
+                <MessageCircle className="h-8 w-8 text-blue-500 mr-3" />
+                <h2 className="text-2xl font-semibold text-navy">Priority Customer Portal</h2>
+              </div>
+
+              <p className="text-gray-600 mb-6">
+                You now have exclusive access to our priority customer support portal with direct chat access to our
+                team.
               </p>
-            </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href={`/customer-portal/${paymentDetails.chatAccessToken}`}>
+                  <Button className="bg-blue-500 hover:bg-blue-600 text-white flex items-center space-x-2">
+                    <MessageCircle className="h-4 w-4" />
+                    <span>Access Customer Portal</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+
+                <div className="text-sm text-gray-600 flex items-center">
+                  <span className="bg-gray-100 px-3 py-1 rounded font-mono text-xs">Access expires in 6 months</span>
+                </div>
+              </div>
+            </motion.div>
           )}
 
-          <div className="mt-8 space-y-4">
-            <Link href="/">
-              <Button className="bg-orange text-white hover:bg-orange-600">Return to Homepage</Button>
-            </Link>
-            <p className="text-sm text-gray-500">
-              Questions? Contact us at{" "}
-              <a href="mailto:hello@dolobuilds.com" className="text-orange hover:underline">
-                hello@dolobuilds.com
+          {/* What's Next */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="bg-white rounded-xl shadow-lg p-8 mb-8"
+          >
+            <h2 className="text-2xl font-semibold text-navy mb-6">What Happens Next?</h2>
+
+            <div className="space-y-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-8 h-8 bg-orange text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                  1
+                </div>
+                <div>
+                  <h3 className="font-semibold text-navy mb-1">Project Kickoff Call</h3>
+                  <p className="text-gray-600">
+                    Our team will contact you within 24 hours to schedule your project kickoff call and gather
+                    additional requirements.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="w-8 h-8 bg-orange text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                  2
+                </div>
+                <div>
+                  <h3 className="font-semibold text-navy mb-1">Design & Development</h3>
+                  <p className="text-gray-600">
+                    We'll create your custom website according to your specifications and brand guidelines.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="w-8 h-8 bg-orange text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                  3
+                </div>
+                <div>
+                  <h3 className="font-semibold text-navy mb-1">Review & Launch</h3>
+                  <p className="text-gray-600">
+                    You'll review the completed website, request any changes, and then we'll launch it live.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Contact Information */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-center"
+          >
+            <h2 className="text-2xl font-semibold text-navy mb-6">Questions? We're Here to Help</h2>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a href="mailto:hello@dolobuilds.com">
+                <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
+                  <Mail className="h-4 w-4" />
+                  <span>Email Us</span>
+                </Button>
               </a>
+
+              <a href="https://calendly.com/dolo" target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
+                  <Calendar className="h-4 w-4" />
+                  <span>Schedule a Call</span>
+                </Button>
+              </a>
+            </div>
+
+            <p className="text-gray-600 mt-6">
+              A confirmation email with all these details has been sent to {paymentDetails.customerEmail}
             </p>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </div>
   )

@@ -238,9 +238,9 @@ export async function sendEmail(
                   📧 Reply to ${data.name}
                 </a>
                 
-                <a href="https://calendly.com/dolo" 
+                <a href="https://dolobuilds.com/contact" 
                    style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
-                  📅 Schedule Call
+                  📝 Contact Form
                 </a>
                 
                 <a href="https://dolobuilds.com/admin/dashboard" 
@@ -313,7 +313,7 @@ ${suggestedReplies.map((reply, index) => `${index + 1}. "${reply}"`).join("\n\n"
 
 ⚡ QUICK ACTIONS
 - Reply to ${data.name}: mailto:${data.email}
-- Schedule Call: https://calendly.com/dolo
+- Contact Form: https://dolobuilds.com/contact
 - Admin Dashboard: https://dolobuilds.com/admin/dashboard
 
 📊 SUBMISSION DETAILS
@@ -339,6 +339,9 @@ This notification was generated automatically from the contact form at dolobuild
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+            <div style="background: rgba(255, 255, 255, 0.1); width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 28px; color: white;">🏗️</span>
+            </div>
             <h1 style="color: white; margin: 0; font-size: 28px;">🎯 Your Perfect Plan is Ready!</h1>
             <p style="color: rgba(255, 255, 255, 0.9); margin: 10px 0 0 0; font-size: 16px;">Hi ${data.name || "there"}, we've found the perfect solution for you!</p>
           </div>
@@ -376,6 +379,12 @@ This notification was generated automatically from the contact form at dolobuild
           </div>
           
           <div style="background: #2c3e50; color: white; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;">
+            <div style="margin-bottom: 15px;">
+              <div style="background: rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 18px; color: #ff6b35;">🏗️</span>
+              </div>
+              <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ecf0f1;">Dolo - Building the future, one website at a time</p>
+            </div>
             <p style="margin: 0 0 15px 0; font-size: 16px; font-weight: 600;">Ready to bring your vision to life?</p>
             <p style="margin: 0; font-size: 14px; color: #bdc3c7;">
               Questions? Reply to this email or visit 
@@ -428,14 +437,13 @@ The Dolo Team
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Payment Confirmed - Dolo</title>
-          <link rel="icon" type="image/x-icon" href="https://dolobuilds.com/favicon.ico">
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
           
           <!-- Header with Dolo Branding -->
           <div style="background: #2c3e50; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
             <div style="background: rgba(255, 255, 255, 0.1); width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-              <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 32px; height: 32px; filter: brightness(0) invert(1);" />
+              <span style="font-size: 28px; color: #ff6b35;">🏗️</span>
             </div>
             <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">💳 Payment Confirmed!</h1>
             <p style="color: rgba(255, 255, 255, 0.9); margin: 15px 0 0 0; font-size: 16px;">Thank you ${data.customerName || "valued customer"}!</p>
@@ -485,8 +493,8 @@ The Dolo Team
                 📧 Email Our Team
               </a>
               
-              <a href="https://calendly.com/dolo" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
-                📅 Schedule a Call
+              <a href="https://dolobuilds.com/contact" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+                📝 Contact Form
               </a>
             </div>
           </div>
@@ -495,7 +503,7 @@ The Dolo Team
           <div style="background: #2c3e50; color: white; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;">
             <div style="margin-bottom: 15px;">
               <div style="background: rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
-                <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 24px; height: 24px; filter: brightness(0) invert(1);" />
+                <span style="font-size: 18px; color: #ff6b35;">🏗️</span>
               </div>
               <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ecf0f1;">Dolo - Building the future, one website at a time</p>
             </div>
@@ -531,7 +539,7 @@ WHAT HAPPENS NEXT:
 3. Design & Development: We'll create your custom website
 4. Review & Launch: You'll review and we'll launch it live
 
-Questions? Contact us at hello@dolobuilds.com
+Questions? Contact us at hello@dolobuilds.com or visit dolobuilds.com/contact
 
 ---
 © ${new Date().getFullYear()} Dolo. All rights reserved.
@@ -609,7 +617,6 @@ Questions? Contact us at hello@dolobuilds.com
       }
 
       const planInfo = getPlanDetails(data.projectType || "essential")
-      const chatUrl = `https://tawk.to/chat/${data.chatAccessToken || "default"}`
 
       // HTML version with enhanced project information
       html = `
@@ -619,14 +626,13 @@ Questions? Contact us at hello@dolobuilds.com
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Welcome to Dolo - ${data.projectType || "Project"} Starting</title>
-      <link rel="icon" type="image/x-icon" href="https://dolobuilds.com/favicon.ico">
     </head>
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
       
       <!-- Header with Dolo Branding -->
       <div style="background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
         <div style="background: rgba(255, 255, 255, 0.1); width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-          <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 32px; height: 32px; filter: brightness(0) invert(1);" />
+          <span style="font-size: 28px; color: white;">🏗️</span>
         </div>
         <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">🎉 Welcome to Dolo!</h1>
         <p style="color: rgba(255, 255, 255, 0.9); margin: 15px 0 0 0; font-size: 16px;">Hi ${data.customerName || data.name || "there"}, your ${data.projectType || "project"} is starting!</p>
@@ -686,7 +692,7 @@ Questions? Contact us at hello@dolobuilds.com
   
   <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
     <p style="color: #1565c0; margin-bottom: 15px; font-size: 16px; line-height: 1.6;">
-      You now have exclusive access to our priority customer support portal where you can chat directly with our team.
+      You now have exclusive access to our priority customer support portal where you can chat directly with our team via TawkTo.
     </p>
     
     <div style="text-align: center; margin: 20px 0;">
@@ -709,36 +715,6 @@ Questions? Contact us at hello@dolobuilds.com
   </div>
 </div>
 `
-          : ""
-      }
-      
-      ${
-        data.chatAccessToken
-          ? `
-      <!-- Chat Access -->
-      <div style="background: white; padding: 30px; border-bottom: 1px solid #e9ecef;">
-        <h2 style="color: #2c3e50; margin-bottom: 20px; font-size: 22px; font-weight: 600;">
-          <span style="color: #ff6b35;">💬</span> Priority Chat Support
-        </h2>
-        
-        <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
-          <p style="color: #1565c0; margin-bottom: 15px; font-size: 16px; line-height: 1.6;">
-            You have exclusive access to our priority chat support with your unique access token.
-          </p>
-          
-          <div style="background: white; padding: 15px; border-radius: 6px; margin: 15px 0;">
-            <strong style="color: #2c3e50;">Chat Access Token:</strong>
-            <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-top: 5px; font-family: monospace; color: #ff6b35; font-weight: 600;">${data.chatAccessToken}</div>
-          </div>
-          
-          <div style="text-align: center; margin-top: 15px;">
-            <a href="${chatUrl}" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px;">
-              💬 Start Priority Chat
-            </a>
-          </div>
-        </div>
-      </div>
-      `
           : ""
       }
       
@@ -779,8 +755,8 @@ Questions? Contact us at hello@dolobuilds.com
             📧 Email Our Team
           </a>
           
-          <a href="https://calendly.com/dolo" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
-            📅 Schedule a Call
+          <a href="https://dolobuilds.com/contact" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+            📝 Contact Form
           </a>
         </div>
       </div>
@@ -789,7 +765,7 @@ Questions? Contact us at hello@dolobuilds.com
       <div style="background: #2c3e50; color: white; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;">
         <div style="margin-bottom: 15px;">
           <div style="background: rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
-            <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 24px; height: 24px; filter: brightness(0) invert(1);" />
+            <span style="font-size: 18px; color: #ff6b35;">🏗️</span>
           </div>
           <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ecf0f1;">Dolo - Building the future, one website at a time</p>
         </div>
@@ -839,18 +815,8 @@ You now have exclusive access to our priority customer support portal.
 
 Access your portal: ${process.env.NEXT_PUBLIC_SITE_URL}/customer-portal/${data.chatAccessToken}
 
-Bookmark this link for easy access to priority support.
+Bookmark this link for easy access to priority support via TawkTo.
 Access expires in 6 months.
-`
-    : ""
-}
-
-${
-  data.chatAccessToken
-    ? `
-PRIORITY CHAT SUPPORT:
-Access Token: ${data.chatAccessToken}
-Chat URL: ${chatUrl}
 `
     : ""
 }
@@ -863,7 +829,7 @@ WHAT HAPPENS NEXT:
 
 GET IN TOUCH:
 - Email: hello@dolobuilds.com
-- Schedule a call: https://calendly.com/dolo
+- Contact Form: https://dolobuilds.com/contact
 
 Best regards,
 The Dolo Team
@@ -881,14 +847,13 @@ The Dolo Team
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>New Private Build Application - Dolo</title>
-          <link rel="icon" type="image/x-icon" href="https://dolobuilds.com/favicon.ico">
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 700px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
           
           <!-- Header -->
           <div style="background: #2c3e50; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
             <div style="background: rgba(255, 255, 255, 0.1); width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-              <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 32px; height: 32px; filter: brightness(0) invert(1);" />
+              <span style="font-size: 28px; color: #ff6b35;">🏗️</span>
             </div>
             <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">🏗️ New Private Build Application</h1>
             <p style="color: rgba(255, 255, 255, 0.9); margin: 15px 0 0 0; font-size: 16px;">Received ${data.submissionDate || new Date().toLocaleDateString()}</p>
@@ -958,7 +923,7 @@ The Dolo Team
                 📧 Reply to ${data.name}
               </a>
               
-              <a href="https://calendly.com/dolo" 
+              <a href="https://cal.com/dolobuilds/quick-consult" 
                  style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
                 📅 Schedule Strategy Call
               </a>
@@ -974,7 +939,7 @@ The Dolo Team
           <div style="background: #2c3e50; color: white; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;">
             <div style="margin-bottom: 15px;">
               <div style="background: rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
-                <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 24px; height: 24px; filter: brightness(0) invert(1);" />
+                <span style="font-size: 18px; color: #ff6b35;">🏗️</span>
               </div>
               <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ecf0f1;">Dolo - Building the future, one website at a time</p>
             </div>
@@ -1012,7 +977,7 @@ ${data.vision}
 
 QUICK ACTIONS:
 - Reply to ${data.name}: mailto:${data.email}
-- Schedule Strategy Call: https://calendly.com/dolo
+- Schedule Strategy Call: https://cal.com/dolobuilds/quick-consult
 - Admin Dashboard: https://dolobuilds.com/admin/dashboard
 
 Submission Date: ${data.submissionDate || new Date().toLocaleDateString()}
@@ -1030,14 +995,13 @@ Submission Date: ${data.submissionDate || new Date().toLocaleDateString()}
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Private Build Application Received - Dolo</title>
-          <link rel="icon" type="image/x-icon" href="https://dolobuilds.com/favicon.ico">
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f8f9fa;">
           
           <!-- Header -->
           <div style="background: #2c3e50; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
             <div style="background: rgba(255, 255, 255, 0.1); width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-              <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 32px; height: 32px; filter: brightness(0) invert(1);" />
+              <span style="font-size: 28px; color: #ff6b35;">🏗️</span>
             </div>
             <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">🏗️ Application Received!</h1>
             <p style="color: rgba(255, 255, 255, 0.9); margin: 15px 0 0 0; font-size: 16px;">Thank you ${data.name}!</p>
@@ -1114,7 +1078,7 @@ Submission Date: ${data.submissionDate || new Date().toLocaleDateString()}
                 📧 Email Our Team
               </a>
               
-              <a href="https://calendly.com/dolo" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
+              <a href="https://cal.com/dolobuilds/quick-consult" style="background: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600; font-size: 14px; margin: 5px;">
                 📅 Schedule a Call
               </a>
             </div>
@@ -1124,7 +1088,7 @@ Submission Date: ${data.submissionDate || new Date().toLocaleDateString()}
           <div style="background: #2c3e50; color: white; padding: 25px; text-align: center; border-radius: 0 0 8px 8px;">
             <div style="margin-bottom: 15px;">
               <div style="background: rgba(255, 255, 255, 0.1); width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
-                <img src="https://dolobuilds.com/favicon.ico" alt="Dolo" style="width: 24px; height: 24px; filter: brightness(0) invert(1);" />
+                <span style="font-size: 18px; color: #ff6b35;">🏗️</span>
               </div>
               <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ecf0f1;">Dolo - Building the future, one website at a time</p>
             </div>
@@ -1170,7 +1134,7 @@ QUESTIONS?
 Have questions about the Private Build process? Don't hesitate to reach out!
 
 - Email: hello@dolobuilds.com
-- Schedule a call: https://calendly.com/dolo
+- Schedule a call: https://cal.com/dolobuilds/quick-consult
 
 Best regards,
 The Dolo Team

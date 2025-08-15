@@ -16,7 +16,7 @@ export function Header() {
       setScrolled(window.scrollY > 10)
     }
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
@@ -31,7 +31,15 @@ export function Header() {
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:h-20 md:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/dolo-logo.svg" alt="Dolo" width={100} height={100} className="h-16 w-16 sm:h-20 sm:w-20" />
+          <Image
+            src="/dolo-logo.svg"
+            alt="Dolo"
+            width={100}
+            height={100}
+            className="h-16 w-16 sm:h-20 sm:w-20"
+            priority
+            quality={90}
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -63,7 +71,7 @@ export function Header() {
               </Link>
             </li>
           </ul>
-          <Link href="/start">
+          <Link href="/start" prefetch={true}>
             <Button className="bg-orange text-white hover:bg-orange-600">Start My Website</Button>
           </Link>
         </nav>
@@ -93,6 +101,7 @@ export function Header() {
                     href="/"
                     className="block py-2 text-navy transition-colors hover:text-orange"
                     onClick={() => setIsMenuOpen(false)}
+                    prefetch={true}
                   >
                     Home
                   </Link>
@@ -102,6 +111,7 @@ export function Header() {
                     href="/about"
                     className="block py-2 text-navy transition-colors hover:text-orange"
                     onClick={() => setIsMenuOpen(false)}
+                    prefetch={true}
                   >
                     About
                   </Link>
@@ -111,6 +121,7 @@ export function Header() {
                     href="/pricing"
                     className="block py-2 text-navy transition-colors hover:text-orange"
                     onClick={() => setIsMenuOpen(false)}
+                    prefetch={true}
                   >
                     Pricing
                   </Link>
@@ -120,6 +131,7 @@ export function Header() {
                     href="/private-build"
                     className="block py-2 text-navy transition-colors hover:text-orange"
                     onClick={() => setIsMenuOpen(false)}
+                    prefetch={true}
                   >
                     Private Build
                   </Link>
@@ -129,12 +141,13 @@ export function Header() {
                     href="/contact"
                     className="block py-2 text-navy transition-colors hover:text-orange"
                     onClick={() => setIsMenuOpen(false)}
+                    prefetch={true}
                   >
                     Contact
                   </Link>
                 </li>
                 <li className="pt-2">
-                  <Link href="/start" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/start" onClick={() => setIsMenuOpen(false)} prefetch={true}>
                     <Button className="w-full bg-orange text-white hover:bg-orange-600">Start My Website</Button>
                   </Link>
                 </li>

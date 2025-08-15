@@ -1,15 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, lazy, Suspense } from "react"
 import { Button } from "@/components/ui/button"
-import dynamic from "next/dynamic"
-import { createPortal } from "react-dom"
 
-// Fix the dynamic import - QuizModal is exported as default
-const QuizModal = dynamic(() => import("@/components/quiz-modal"), {
-  ssr: false,
-  loading: () => <div className="hidden">Loading...</div>,
-})
+// Lazy load the quiz modal for better performance
+const QuizModal = lazy(() => import("@/components/quiz-modal"))
 
 const quizQuestions = [
   {
@@ -56,12 +51,6 @@ const quizQuestions = [
 
 export function QuizTrigger() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  // Only run this effect on the client
-  useState(() => {
-    setMounted(true)
-  })
 
   const handleQuizSubmit = async (answers: { [key: string]: string }) => {
     try {
@@ -128,19 +117,17 @@ export function QuizTrigger() {
         Find My Perfect Plan
       </Button>
 
-      {/* Use createPortal to render the modal at the document root */}
-      {isModalOpen &&
-        mounted &&
-        typeof document !== "undefined" &&
-        createPortal(
+      {/* Lazy load the modal only when needed */}
+      {isModalOpen && (
+        <Suspense fallback={<div className="hidden">Loading...</div>}>
           <QuizModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             questions={quizQuestions}
             onSubmit={handleQuizSubmit}
-          />,
-          document.body,
-        )}
+          />
+        </Suspense>
+      )}
     </>
   )
 }

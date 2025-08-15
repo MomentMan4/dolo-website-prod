@@ -1,29 +1,41 @@
-import { createClient } from "@supabase/supabase-js"
+import { createServerClient } from "@supabase/ssr"
+import { cookies } from "next/headers"
 import type { Database } from "./client"
 
-// This file is specifically for App Router server components that need cookies
-// It should only be imported in App Router server components, not in shared utilities
-
-export function createServerSupabaseClientWithCookies() {
-  if (typeof window !== "undefined") {
-    throw new Error("createServerSupabaseClientWithCookies should only be used server-side")
-  }
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error("Missing Supabase configuration")
-  }
-
-  // Only import cookies when actually needed in App Router
-  const { cookies } = require("next/headers")
+export function createClient() {
   const cookieStore = cookies()
 
-  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    },
+  )
+}
+
+// Create server-side Supabase client with service role key
+export function createServiceRoleClient() {
+  return createServerClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
     cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value
+      getAll() {
+        return []
+      },
+      setAll() {
+        // No-op for service role client
       },
     },
   })

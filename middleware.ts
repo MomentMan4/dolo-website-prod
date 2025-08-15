@@ -1,54 +1,101 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
+import { createServerClient } from "@supabase/ssr"
+import { NextResponse, type NextRequest } from "next/server"
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
+export async function middleware(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
 
-  // Check if the route is an admin route
-  if (req.nextUrl.pathname.startsWith("/admin")) {
-    // Skip middleware for login page
-    if (req.nextUrl.pathname === "/admin/login") {
-      return res
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options))
+        },
+      },
+    },
+  )
+
+  // IMPORTANT: Avoid writing any logic between createServerClient and
+  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
+  // issues with users being randomly logged out.
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // Admin route protection
+  if (request.nextUrl.pathname.startsWith("/admin")) {
+    if (request.nextUrl.pathname === "/admin/login") {
+      // Allow access to login page
+      return supabaseResponse
     }
 
+    if (!user) {
+      // Redirect to login if not authenticated
+      const url = request.nextUrl.clone()
+      url.pathname = "/admin/login"
+      return NextResponse.redirect(url)
+    }
+
+    // Check if user is an admin (you might want to check this against your admin_users table)
     try {
-      // Use the auth helpers middleware client which handles cookies properly
-      const supabase = createMiddlewareClient({ req, res })
-
-      // Get the current session
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession()
-
-      if (sessionError || !session) {
-        // Redirect to login if no session or error
-        return NextResponse.redirect(new URL("/admin/login", req.url))
-      }
-
-      // Check if user is in admin_users table
-      const { data: adminUser, error: adminError } = await supabase
+      const { data: adminUser } = await supabase
         .from("admin_users")
         .select("*")
-        .eq("email", session.user.email)
+        .eq("email", user.email)
         .eq("is_active", true)
         .single()
 
-      if (adminError || !adminUser) {
-        // Redirect to unauthorized if not an admin
-        return NextResponse.redirect(new URL("/admin/unauthorized", req.url))
+      if (!adminUser) {
+        // Redirect to unauthorized page if not an admin
+        const url = request.nextUrl.clone()
+        url.pathname = "/admin/unauthorized"
+        return NextResponse.redirect(url)
       }
     } catch (error) {
-      console.warn("Middleware error - redirecting to login:", error)
-      // Redirect to login on any middleware error
-      return NextResponse.redirect(new URL("/admin/login", req.url))
+      console.error("Error checking admin status:", error)
+      // Redirect to unauthorized page on error
+      const url = request.nextUrl.clone()
+      url.pathname = "/admin/unauthorized"
+      return NextResponse.redirect(url)
     }
   }
 
-  return res
+  // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
+  // creating a new response object with NextResponse.next() make sure to:
+  // 1. Pass the request in it, like so:
+  //    const myNewResponse = NextResponse.next({ request })
+  // 2. Copy over the cookies, like so:
+  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
+  // 3. Change the myNewResponse object to fit your needs, but avoid changing
+  //    the cookies!
+  // 4. Finally:
+  //    return myNewResponse
+  // If this is not done, you may be causing the browser and server to go out
+  // of sync and terminate the user's session prematurely!
+
+  return supabaseResponse
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 }

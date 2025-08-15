@@ -24,10 +24,14 @@ export function CustomerPortal({ customer }: CustomerPortalProps) {
   const [chatStatus, setChatStatus] = useState<"loading" | "online" | "offline">("loading")
 
   useEffect(() => {
+    // TawkTo integration with your actual credentials
+    const TAWKTO_PROPERTY_ID = "6824c8d9cc21d9190ec425e3"
+    const TAWKTO_WIDGET_ID = "1ir7r14hp"
+
     // Load TawkTo script
     const script = document.createElement("script")
     script.async = true
-    script.src = "https://embed.tawk.to/YOUR_TAWK_TO_ID/YOUR_WIDGET_ID"
+    script.src = `https://embed.tawk.to/${TAWKTO_PROPERTY_ID}/${TAWKTO_WIDGET_ID}`
     script.charset = "UTF-8"
     script.setAttribute("crossorigin", "*")
 
@@ -35,7 +39,7 @@ export function CustomerPortal({ customer }: CustomerPortalProps) {
     window.Tawk_API = window.Tawk_API || {}
     window.Tawk_LoadStart = new Date()
 
-    // Set customer information
+    // Set customer information for TawkTo
     window.Tawk_API.setAttributes = {
       name: customer.name,
       email: customer.email,
@@ -43,24 +47,45 @@ export function CustomerPortal({ customer }: CustomerPortalProps) {
       phone: customer.phone || "",
       customerId: customer.id,
       accessToken: customer.chat_access_token,
+      customerType: "paid_customer",
+      accessLevel: "priority",
     }
 
     // TawkTo event handlers
     window.Tawk_API.onLoad = () => {
+      console.log("TawkTo chat loaded successfully")
       setIsChatLoaded(true)
       setChatStatus("online")
     }
 
     window.Tawk_API.onStatusChange = (status: string) => {
+      console.log("TawkTo status changed:", status)
       setChatStatus(status === "online" ? "online" : "offline")
     }
 
+    window.Tawk_API.onChatMaximized = () => {
+      console.log("TawkTo chat maximized")
+    }
+
+    window.Tawk_API.onChatMinimized = () => {
+      console.log("TawkTo chat minimized")
+    }
+
+    window.Tawk_API.onChatStarted = () => {
+      console.log("TawkTo chat started")
+    }
+
+    // Add script to document
     document.head.appendChild(script)
 
+    // Cleanup function
     return () => {
-      // Cleanup
       if (document.head.contains(script)) {
         document.head.removeChild(script)
+      }
+      // Clean up TawkTo
+      if (window.Tawk_API) {
+        window.Tawk_API = undefined
       }
     }
   }, [customer])
@@ -179,7 +204,7 @@ export function CustomerPortal({ customer }: CustomerPortalProps) {
                   </p>
                   <div className="inline-flex items-center space-x-2 text-sm text-green-600">
                     <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span>Chat widget loaded successfully</span>
+                    <span>TawkTo chat widget loaded successfully</span>
                   </div>
                 </div>
               ) : (
@@ -187,7 +212,7 @@ export function CustomerPortal({ customer }: CustomerPortalProps) {
                   <p className="text-gray-600 mb-4">Loading your priority chat support...</p>
                   <div className="inline-flex items-center space-x-2 text-sm text-yellow-600">
                     <div className="h-2 w-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                    <span>Initializing chat widget</span>
+                    <span>Initializing TawkTo chat widget</span>
                   </div>
                 </div>
               )}
@@ -206,7 +231,7 @@ export function CustomerPortal({ customer }: CustomerPortalProps) {
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-start space-x-2">
                   <div className="h-2 w-2 bg-orange rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Direct access to our development team</span>
+                  <span>Direct access to our development team via TawkTo</span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <div className="h-2 w-2 bg-orange rounded-full mt-2 flex-shrink-0"></div>
