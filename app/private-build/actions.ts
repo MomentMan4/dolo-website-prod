@@ -10,15 +10,15 @@ export async function submitPrivateBuildForm(formData: FormData) {
       name: formData.get("name") as string,
       email: formData.get("email") as string,
       company: formData.get("company") as string,
-      project_type: formData.get("projectType") as string,
+      projectType: formData.get("projectType") as string,
       budget: formData.get("budget") as string,
       timeline: formData.get("timeline") as string,
       vision: formData.get("vision") as string,
-      referral_source: formData.get("referralSource") as string,
+      referralSource: formData.get("referralSource") as string,
     }
 
     // Validate required fields
-    const requiredFields = ["name", "email", "project_type", "budget", "timeline", "vision"]
+    const requiredFields = ["name", "email", "projectType", "budget", "timeline", "vision"]
     const validationError = validateRequiredFields(data, requiredFields)
     if (validationError) {
       throw new Error(validationError)
@@ -34,7 +34,7 @@ export async function submitPrivateBuildForm(formData: FormData) {
       data.vision = "No vision provided"
     }
 
-    // Submit to database with fallback - this should be fast
+    // Submit to database with fallback
     const result = await submitPrivateBuildApplication(data)
 
     if (!result.success) {
@@ -46,34 +46,31 @@ export async function submitPrivateBuildForm(formData: FormData) {
       fallbackUsed: result.fallbackUsed,
     })
 
-    // Send notification emails if Resend is configured - run in parallel for speed
+    // Send notification emails if Resend is configured
     if (isResendConfigured()) {
       try {
-        // Send both emails in parallel to reduce delay
-        const [adminEmailResult, userEmailResult] = await Promise.all([
-          // Send notification to admin
-          sendEmail("private-build-application", "hello@dolobuilds.com", {
-            name: data.name,
-            email: data.email,
-            company: data.company || "Not provided",
-            projectType: data.project_type,
-            budget: data.budget,
-            timeline: data.timeline,
-            vision: data.vision,
-            referralSource: data.referral_source || "Not provided",
-            applicationId: result.data?.id || "N/A",
-            submissionDate: new Date().toLocaleDateString(),
-          }),
+        // Send notification to admin
+        const adminEmailResult = await sendEmail("private-build-application", "hello@dolobuilds.com", {
+          name: data.name,
+          email: data.email,
+          company: data.company || "Not provided",
+          projectType: data.projectType,
+          budget: data.budget,
+          timeline: data.timeline,
+          vision: data.vision,
+          referralSource: data.referralSource || "Not provided",
+          applicationId: result.data?.id || "N/A",
+          submissionDate: new Date().toLocaleDateString(),
+        })
 
-          // Send confirmation to user
-          sendEmail("private-build-confirmation", data.email, {
-            name: data.name,
-            projectType: data.project_type,
-            budget: data.budget,
-            timeline: data.timeline,
-            applicationId: result.data?.id || "N/A",
-          }),
-        ])
+        // Send confirmation to user
+        const userEmailResult = await sendEmail("private-build-confirmation", data.email, {
+          name: data.name,
+          projectType: data.projectType,
+          budget: data.budget,
+          timeline: data.timeline,
+          applicationId: result.data?.id || "N/A",
+        })
 
         console.log("Private build emails sent successfully", {
           adminEmail: adminEmailResult.success,

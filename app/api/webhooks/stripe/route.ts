@@ -1,7 +1,7 @@
 import { headers } from "next/headers"
 import { type NextRequest, NextResponse } from "next/server"
 import { stripe, createCustomerWithChatAccess, createProject } from "@/lib/stripe"
-import { sendEmail } from "@/lib/resend"
+import { sendEmail, isResendConfigured } from "@/lib/resend"
 import type Stripe from "stripe"
 
 export async function POST(req: NextRequest) {
@@ -99,85 +99,50 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
     console.log("Attempting to send welcome email to:", customer.email)
 
-    // Send welcome email with chat access
-    const welcomeEmailResult = await sendEmail(
-      "welcome",
-      customer.email,
-      {
-        customerName: dbCustomer.name,
-        projectType: session.metadata.plan,
-        chatAccessToken: dbCustomer.chat_access_token,
-        projectDetails: projectDetails,
-        amount: (session.amount_total || 0) / 100,
-        rushDelivery: session.metadata.rush_delivery === "true",
-        projectId: project.id,
-        name: dbCustomer.name, // Add name for welcome template
-      },
-      dbCustomer.id,
-    )
+    // Send welcome email with chat access if Resend is configured
+    if (isResendConfigured()) {
+      try {
+        const welcomeEmailResult = await sendEmail("welcome", customer.email, {
+          customerName: dbCustomer.name,
+          name: dbCustomer.name,
+          projectType: session.metadata.plan,
+          chatAccessToken: dbCustomer.chat_access_token,
+          projectDetails: projectDetails,
+          amount: (session.amount_total || 0) / 100,
+          rushDelivery: session.metadata.rush_delivery === "true",
+          projectId: project.id,
+        })
 
-    if (!welcomeEmailResult.success) {
-      console.error("Failed to send welcome email:", welcomeEmailResult.error)
+        if (!welcomeEmailResult.success) {
+          console.error("Failed to send welcome email:", welcomeEmailResult.error)
+        } else {
+          console.log("Welcome email sent successfully:", welcomeEmailResult.messageId)
+        }
+      } catch (emailError) {
+        console.error("Email sending error:", emailError)
+      }
     } else {
-      console.log("Welcome email sent successfully:", welcomeEmailResult.messageId)
+      console.warn("Resend not configured - welcome email not sent")
     }
-
-    console.log("Attempting to send payment confirmation email to:", customer.email)
-
-    // Send payment confirmation
-    const confirmationEmailResult = await sendEmail(
-      "payment-confirmation",
-      customer.email,
-      {
-        customerName: dbCustomer.name,
-        projectType: session.metadata.plan,
-        amount: (session.amount_total || 0) / 100,
-        rushDelivery: session.metadata.rush_delivery === "true",
-        projectId: project.id,
-      },
-      dbCustomer.id,
-    )
-
-    if (!confirmationEmailResult.success) {
-      console.error("Failed to send payment confirmation email:", confirmationEmailResult.error)
-    } else {
-      console.log("Payment confirmation email sent successfully:", confirmationEmailResult.messageId)
-    }
-
-    // Log email attempts to database
-    // await logEmailToDatabase(
-    //   dbCustomer.id,
-    //   "welcome",
-    //   customer.email,
-    //   welcomeEmailResult.success,
-    //   welcomeEmailResult.messageId,
-    //   welcomeEmailResult.error,
-    // )
-
-    // await logEmailToDatabase(
-    //   dbCustomer.id,
-    //   "payment-confirmation",
-    //   customer.email,
-    //   confirmationEmailResult.success,
-    //   confirmationEmailResult.messageId,
-    //   confirmationEmailResult.error,
-    // )
 
     console.log("Successfully processed checkout completion for customer:", dbCustomer.id)
   } catch (error) {
     console.error("Error processing checkout completion:", error)
     // Still attempt to send a basic email even if database operations fail
-    try {
-      await sendEmail("payment-confirmation", customer.email, {
-        customerName: customer.name || "Valued Customer",
-        projectType: session.metadata.plan || "Website Development",
-        amount: (session.amount_total || 0) / 100,
-        rushDelivery: session.metadata.rush_delivery === "true",
-        projectId: "TEMP-" + session.id,
-      })
-      console.log("Fallback email sent successfully")
-    } catch (emailError) {
-      console.error("Failed to send fallback email:", emailError)
+    if (isResendConfigured()) {
+      try {
+        await sendEmail("welcome", customer.email, {
+          customerName: customer.name || "Valued Customer",
+          name: customer.name || "Valued Customer",
+          projectType: session.metadata.plan || "Website Development",
+          amount: (session.amount_total || 0) / 100,
+          rushDelivery: session.metadata.rush_delivery === "true",
+          projectId: "TEMP-" + session.id,
+        })
+        console.log("Fallback email sent successfully")
+      } catch (emailError) {
+        console.error("Failed to send fallback email:", emailError)
+      }
     }
   }
 }

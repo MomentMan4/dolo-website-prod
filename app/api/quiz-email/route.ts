@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { sendEmail, isResendConfigured } from "@/lib/resend"
-import { insertQuizResult, validateEmail, validateRequiredFields } from "@/lib/simple-form-utils"
+import { submitQuizResult, validateEmail, validateRequiredFields } from "@/lib/form-utils"
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, plan, description, link, consent } = body
+    const { email, name, plan, description, link, consent } = body
 
     // Validate required fields
     const validationError = validateRequiredFields(body, ["email", "plan", "description", "link"])
@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Consent is required" }, { status: 400 })
     }
 
-    // Insert quiz result (same approach as Private Build)
-    const result = await insertQuizResult({
+    // Insert quiz result
+    const result = await submitQuizResult({
       email,
       plan,
       description,
@@ -39,10 +39,11 @@ export async function POST(request: NextRequest) {
     if (isResendConfigured()) {
       try {
         const emailResult = await sendEmail("quiz-result", email, {
+          email,
+          name: name || email.split("@")[0],
           plan,
           description,
           link,
-          name: email.split("@")[0], // Extract name from email
         })
         emailSent = emailResult.success
         console.log("Quiz result email sent successfully")

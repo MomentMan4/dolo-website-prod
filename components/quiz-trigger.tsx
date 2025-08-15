@@ -54,6 +54,9 @@ export function QuizTrigger() {
 
   const handleQuizSubmit = async (answers: { [key: string]: string }) => {
     try {
+      const plan = determinePlan(answers)
+      const description = formatDescription(plan, answers)
+
       // Send quiz results via API
       const response = await fetch("/api/quiz-email", {
         method: "POST",
@@ -62,9 +65,10 @@ export function QuizTrigger() {
         },
         body: JSON.stringify({
           email: answers.email,
-          plan: determinePlan(answers),
-          description: formatAnswers(answers),
-          link: window.location.origin + "/start",
+          name: answers.email.split("@")[0], // Extract name from email
+          plan: plan,
+          description: description,
+          link: `${window.location.origin}/start?plan=${plan.toLowerCase()}`,
           consent: true,
         }),
       })
@@ -73,8 +77,10 @@ export function QuizTrigger() {
         const result = await response.json()
         console.log("Quiz submitted successfully:", result)
 
-        // Show success message without automatic redirection
-        alert("Thank you! We've sent your personalized recommendation to your email. Check your inbox for details.")
+        // Show success message
+        alert(
+          `Thank you! We've sent your personalized ${plan} plan recommendation to ${answers.email}. Check your inbox for details and next steps.`,
+        )
 
         // Close the modal after successful submission
         setIsModalOpen(false)
@@ -84,34 +90,52 @@ export function QuizTrigger() {
       }
     } catch (error) {
       console.error("Error submitting quiz:", error)
-      alert("There was an error submitting your quiz. Please try again or contact support.")
+      alert("There was an error submitting your quiz. Please try again or contact support at hello@dolobuilds.com")
     }
   }
 
   const determinePlan = (answers: { [key: string]: string }) => {
     const budget = answers.budget
     const goal = answers["website-goal"]
+    const businessType = answers["business-type"]
 
+    // Budget-based logic
     if (budget === "$500-$1000") return "Essential"
-    if (budget === "$1000-$2000") return "Pro"
-    if (budget === "$2000-$5000" || budget === "$5000+") return "Premier"
+    if (budget === "$5000+") return "Premier"
 
-    // Fallback based on goal
-    if (goal === "Sell products online") return "Pro"
-    if (goal === "Generate leads" || goal === "Build brand awareness") return "Pro"
+    // Goal-based logic for mid-range budgets
+    if (budget === "$1000-$2000" || budget === "$2000-$5000") {
+      if (goal === "Sell products online" || businessType === "E-commerce") return "Pro"
+      if (goal === "Generate leads" || goal === "Build brand awareness") return "Pro"
+      if (budget === "$2000-$5000") return "Premier"
+      return "Pro"
+    }
 
-    return "Essential"
+    // Fallback
+    return "Pro"
   }
 
-  const formatAnswers = (answers: { [key: string]: string }) => {
-    return `Business Type: ${answers["business-type"]}\nWebsite Goal: ${answers["website-goal"]}\nBudget: ${answers.budget}\nTimeline: ${answers.timeline}`
+  const formatDescription = (plan: string, answers: { [key: string]: string }) => {
+    const planDescriptions = {
+      Essential:
+        "Perfect for small businesses and startups looking for a professional online presence. Includes responsive design, basic SEO, and contact forms.",
+      Pro: "Ideal for growing businesses that need advanced features. Includes e-commerce capabilities, blog integration, and enhanced SEO optimization.",
+      Premier:
+        "Comprehensive solution for established businesses requiring premium features. Includes custom functionality, advanced integrations, and priority support.",
+    }
+
+    const baseDescription = planDescriptions[plan as keyof typeof planDescriptions] || planDescriptions.Pro
+    const businessType = answers["business-type"]
+    const goal = answers["website-goal"]
+
+    return `${baseDescription} This plan is specifically tailored for your ${businessType} business with a focus on ${goal.toLowerCase()}.`
   }
 
   return (
     <>
       <Button
         variant="outline"
-        className="w-full border-navy text-navy hover:bg-navy/10 sm:w-auto"
+        className="w-full border-navy text-navy hover:bg-navy/10 sm:w-auto bg-transparent"
         onClick={() => setIsModalOpen(true)}
       >
         Find My Perfect Plan

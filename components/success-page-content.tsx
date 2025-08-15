@@ -251,7 +251,7 @@ export function SuccessPageContent() {
                 </Button>
               </a>
 
-              <a href="https://calendly.com/dolo" target="_blank" rel="noopener noreferrer">
+              <a href="https://cal.com/dolobuilds/quick-consult" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
                   <Calendar className="h-4 w-4" />
                   <span>Schedule a Call</span>

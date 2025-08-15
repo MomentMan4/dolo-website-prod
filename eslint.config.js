@@ -10,10 +10,11 @@ module.exports = [
   ...compat.extends("next/core-web-vitals", "prettier"),
   {
     rules: {
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-explicit-any": "off",
+      "@next/next/no-img-element": "off",
       "react/no-unescaped-entities": "off",
-      "react-hooks/exhaustive-deps": "warn",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "prefer-const": "warn",
+      "no-console": ["warn", { allow: ["warn", "error"] }],
     },
   },
 ]

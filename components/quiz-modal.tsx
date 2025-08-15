@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
+import { X } from "lucide-react"
 
 interface QuizQuestion {
   id: string
@@ -56,78 +57,97 @@ const QuizModal: React.FC<QuizModalProps> = ({ isOpen, onClose, questions, onSub
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={handleBackdropClick}>
-      <div className="bg-white rounded-lg p-8 w-full max-w-md relative">
-        <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={handleBackdropClick}>
+      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10">
+          <X className="h-6 w-6" />
         </button>
 
-        <h3 className="mb-4 text-lg font-semibold text-navy">
-          {currentQuestion.question}
-          {currentQuestion.required && <span className="ml-1 text-red-500">*</span>}
-        </h3>
+        <div className="p-8">
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-sm text-gray-500">
+                Question {currentQuestionIndex + 1} of {questions.length}
+              </span>
+              <div className="w-32 bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-orange h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+                ></div>
+              </div>
+            </div>
 
-        {currentQuestion.type === "text" && (
-          <input
-            type="text"
-            value={answers[currentQuestion.id] || ""}
-            onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-1 ${
-              currentQuestion.required
-                ? "border-orange-300 focus:border-orange focus:ring-orange bg-orange-50/20"
-                : "border-gray-300 focus:border-gray-500 focus:ring-gray-500"
-            }`}
-            placeholder="Type your answer here..."
-            required={currentQuestion.required}
-          />
-        )}
-
-        {currentQuestion.type === "radio" && (
-          <div
-            className={`space-y-3 ${currentQuestion.required ? "bg-orange-50/10 p-4 rounded-lg border border-orange-200" : ""}`}
-          >
-            {currentQuestion.options?.map((option, index) => (
-              <label key={index} className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  name={currentQuestion.id}
-                  value={option}
-                  checked={answers[currentQuestion.id] === option}
-                  onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                  className="focus:ring-orange-500 h-4 w-4 text-orange-500 border-gray-300"
-                  required={currentQuestion.required}
-                />
-                <span>{option}</span>
-              </label>
-            ))}
+            <h3 className="text-xl font-semibold text-navy mb-4">
+              {currentQuestion.question}
+              {currentQuestion.required && <span className="ml-1 text-red-500">*</span>}
+            </h3>
           </div>
-        )}
 
-        <div className="mt-6 flex justify-between">
-          <button
-            onClick={handlePreviousQuestion}
-            disabled={currentQuestionIndex === 0}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button>
-          {currentQuestionIndex === questions.length - 1 ? (
-            <button
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
-            >
-              Submit
-            </button>
-          ) : (
-            <button
-              onClick={handleNextQuestion}
-              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
-            >
-              Next
-            </button>
+          {currentQuestion.type === "text" && (
+            <div className="mb-8">
+              <input
+                type="text"
+                value={answers[currentQuestion.id] || ""}
+                onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+                className={`w-full rounded-md border px-4 py-3 text-lg focus:outline-none focus:ring-2 ${
+                  currentQuestion.required
+                    ? "border-orange-300 focus:border-orange focus:ring-orange bg-orange-50/20"
+                    : "border-gray-300 focus:border-gray-500 focus:ring-gray-500"
+                }`}
+                placeholder="Type your answer here..."
+                required={currentQuestion.required}
+              />
+            </div>
           )}
+
+          {currentQuestion.type === "radio" && (
+            <div
+              className={`space-y-4 mb-8 ${currentQuestion.required ? "bg-orange-50/10 p-6 rounded-lg border border-orange-200" : ""}`}
+            >
+              {currentQuestion.options?.map((option, index) => (
+                <label
+                  key={index}
+                  className="flex items-center space-x-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <input
+                    type="radio"
+                    name={currentQuestion.id}
+                    value={option}
+                    checked={answers[currentQuestion.id] === option}
+                    onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+                    className="focus:ring-orange-500 h-5 w-5 text-orange-500 border-gray-300"
+                    required={currentQuestion.required}
+                  />
+                  <span className="text-lg">{option}</span>
+                </label>
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-between">
+            <button
+              onClick={handlePreviousQuestion}
+              disabled={currentQuestionIndex === 0}
+              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 transition-colors"
+            >
+              Previous
+            </button>
+            {currentQuestionIndex === questions.length - 1 ? (
+              <button
+                onClick={handleSubmit}
+                className="px-8 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors font-semibold"
+              >
+                Get My Recommendation
+              </button>
+            ) : (
+              <button
+                onClick={handleNextQuestion}
+                className="px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+              >
+                Next
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
